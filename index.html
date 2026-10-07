@@ -171,12 +171,103 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
 .ex-meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 .ex-body{padding:0 2px 16px;}
 .set-grid{display:flex;flex-direction:column;gap:8px;}
-.set-row{display:grid;grid-template-columns:56px 1fr 1fr auto;gap:9px;align-items:center;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);}
+
+/* Set row with steppers and circular done button */
+.set-row{
+  display:grid;
+  grid-template-columns: 32px minmax(96px,1fr) minmax(86px,1fr) 44px;
+  gap:6px;
+  align-items:center;
+  padding:8px 10px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  transition: background .2s, border-color .2s;
+}
 .set-row.is-done{background:var(--success-soft);border-color:var(--success-border);}
-.set-row .set-no{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;}
-.set-row .unit-input{display:flex;align-items:center;gap:6px;}
-.set-row .unit-input input{padding:7px 8px;font-size:14px;text-align:center;min-height:38px;}
-.set-row .unit-input .u{font-size:11.5px;color:var(--muted);font-weight:700;}
+.set-row .set-no{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;}
+
+.stepper{
+  display:grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items:stretch;
+  background:var(--surface);
+  border:1px solid var(--border-strong);
+  border-radius:8px;
+  overflow:hidden;
+  min-height:40px;
+}
+.stepper input{
+  border:0;
+  background:transparent;
+  text-align:center;
+  padding:2px 4px;
+  min-height:38px;
+  font-weight:700;
+  font-size:14px;
+  width:100%;
+  -moz-appearance:textfield;
+  border-radius:0;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.stepper input:focus{outline:none;background:var(--primary-soft);box-shadow:none;}
+.stepper .step-btn{
+  background:var(--surface-2);
+  border:0;
+  color:var(--primary);
+  font-weight:800;
+  font-size:17px;
+  cursor:pointer;
+  padding:0;
+  min-height:38px;
+  display:grid;
+  place-items:center;
+  touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+  transition: background .12s;
+  line-height:1;
+}
+.stepper .step-btn:active{background:var(--primary-soft);}
+.stepper .step-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.done-btn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid var(--border-strong);
+  background:var(--surface);
+  cursor:pointer;
+  font-size:20px;
+  font-weight:800;
+  color:var(--muted);
+  display:grid;
+  place-items:center;
+  padding:0;
+  transition: transform .12s, background .15s, border-color .15s, color .15s;
+  touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.done-btn[aria-pressed="true"]{
+  background:var(--success);
+  border-color:var(--success);
+  color:#fff;
+}
+.done-btn:active{transform:scale(0.9);}
+
+/* Wake lock pill in workout card */
+.wake-pill{
+  display:none;
+  align-items:center;gap:6px;
+  padding:3px 10px;border-radius:var(--radius-pill);
+  background:var(--success-soft);color:var(--success);
+  font-size:11.5px;font-weight:800;letter-spacing:.3px;
+  border:1px solid var(--success-border);
+}
+.wake-pill.is-on{display:inline-flex;}
+
 .rest-timer{position:fixed;right:20px;bottom:20px;z-index:60;display:none;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-pill);padding:10px 12px 10px 18px;box-shadow:var(--shadow-3);}
 .rest-timer.is-open{display:flex;}
 .rest-timer .time{font-family:var(--mono);font-size:19px;font-weight:800;min-width:62px;text-align:center;}
@@ -230,9 +321,6 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
 .chart .target-line{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 5;}
 .chart-empty{padding:34px 12px;text-align:center;color:var(--muted);font-size:13.5px;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);}
 
-/* ============================================================
-   MOBILE — full responsive fixes
-   ============================================================ */
 @media (max-width: 900px){
   .app{flex-direction:column;height:auto;min-height:100vh;min-height:100dvh;overflow:visible;}
   .sidebar{
@@ -268,12 +356,17 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
   .main-inner{padding:14px 14px 90px;}
   .topbar{position:static;padding:4px 0 12px;background:none;}
   .page-head h1{font-size:22px;}
-  input,select,textarea{font-size:16px;}
-  .set-row{grid-template-columns:46px 1fr 1fr auto;gap:6px;padding:7px 8px;}
-  .set-row .set-no{font-size:11px;}
+  input[type="text"],input[type="number"],input[type="date"],input[type="time"],input[type="search"],select,textarea{font-size:16px;}
+  .stepper input{font-size:15px;}
   .sync-pill{padding:5px 10px;}
   .sync-pill .label{display:none;}
   .rest-timer{right:12px;bottom:12px;left:12px;justify-content:space-between;}
+}
+@media (max-width: 420px){
+  .set-row{grid-template-columns: 28px minmax(80px,1fr) minmax(76px,1fr) 40px; gap:5px; padding:7px 8px;}
+  .stepper{grid-template-columns: 24px 1fr 24px;}
+  .stepper .step-btn{font-size:15px;}
+  .done-btn{width:40px;height:40px;font-size:18px;}
 }
 @media (max-width: 520px){
   .grid,.grid-2{grid-template-columns:1fr;}
@@ -291,7 +384,7 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
 }
 @media print{
   :root{--bg:#fff;--surface:#fff;--text:#000;--muted:#444;--border:#bbb;}
-  .sidebar,.topbar,.rest-timer,.toasts,.no-print,.sync-pill{display:none!important;}
+  .sidebar,.topbar,.rest-timer,.toasts,.no-print,.sync-pill,.wake-pill{display:none!important;}
   .app{display:block;height:auto;overflow:visible;}
   .main{overflow:visible;height:auto;}
   .main-inner{max-width:none;padding:0;}
@@ -410,7 +503,7 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
           <div class="stat">
             <div class="stat-label">Streak</div>
             <div class="stat-value"><span id="dash-streak">0</span> <small>days logged</small></div>
-            <div class="stat-hint">Consecutive days with any entry</div>
+            <div class="stat-hint">Consecutive days with real activity</div>
           </div>
           <div class="stat">
             <div class="stat-label">This week</div>
@@ -469,14 +562,17 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
 
         <div class="alert alert-info">
           <span class="alert-ico" aria-hidden="true">ℹ️</span>
-          <div><strong>Rules:</strong> rest 90–120 s on compounds, 60–90 s on isolation. Controlled 2-second lowering phase. Checking a set off starts the rest timer automatically.</div>
+          <div><strong>Rules:</strong> rest 90–120 s on compounds, 60–90 s on isolation. Tap <strong>−/+</strong> to adjust weight and reps without typing. Tapping the green circle logs the set, vibrates, and starts the rest timer. Keep the screen awake while training.</div>
         </div>
 
         <div class="card">
           <div class="card-head">
             <h2>Session</h2>
+            <span class="wake-pill" id="wake-pill" title="Screen will stay awake while you train">
+              <span aria-hidden="true">☀️</span><span>Screen awake</span>
+            </span>
             <div class="spacer"></div>
-            <button class="btn btn-ghost btn-sm" type="button" id="reset-session">Reset today</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="reset-session">Reset this routine</button>
           </div>
           <div class="field" style="max-width:460px;">
             <label for="workout-selector">Select routine</label>
@@ -556,6 +652,12 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
         <div class="page-head">
           <h1 id="diary-h">Food diary</h1>
           <p id="diary-date-label">Today's intake, macros and water</p>
+        </div>
+        <div class="card" style="margin-bottom:18px;">
+          <div class="field" style="max-width:260px;">
+            <label for="diary-date">Date</label>
+            <input type="date" id="diary-date">
+          </div>
         </div>
         <div class="grid" style="margin-bottom:18px;">
           <div class="stat">
@@ -777,7 +879,7 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
   <div class="dialog-body">
     <fieldset>
       <legend>Cross-device sync</legend>
-      <p style="font-size:13px;color:var(--muted);margin:0;">Optional. Sync between phone and PC using a free Firebase Realtime Database.</p>
+      <p style="font-size:13px;color:var(--muted);margin:0;">Optional. Sync between phone and PC using a free Firebase Realtime Database. Sync runs offline-first — your local data is always safe.</p>
       <p style="font-size:13px;"><strong>Status:</strong> <span id="sync-status-text">Not configured</span><span id="sync-status-detail" class="stat-hint" style="display:block;"></span></p>
       <details>
         <summary>📖 How to set up Firebase (2 minutes)</summary>
@@ -786,6 +888,7 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
           <li>Click <strong>Build → Realtime Database → Create Database</strong>. Start in <strong>test mode</strong>.</li>
           <li>Project settings → <strong>Your apps</strong> → <code>&lt;/&gt;</code> web icon → register app → copy config.</li>
           <li>Paste config below, generate a room code, connect on both devices.</li>
+          <li><strong>Important:</strong> after 30 days Firebase test-mode rules expire. In the Rules tab, replace them with <code>{ "rules": { "clay-rooms": { ".read": true, ".write": true } } }</code> to keep sync working.</li>
         </ol>
       </details>
       <div class="field">
@@ -835,6 +938,10 @@ details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);
 
 <script type="module">
 "use strict";
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -849,35 +956,161 @@ function debounce(fn, wait = 400) { let t; return (...args) => { clearTimeout(t)
 function download(filename, text, mime = "text/plain") { const blob = new Blob([text],{type:`${mime};charset=utf-8`}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
 function toCSV(rows) { return rows.map(r => r.map(c => { const s = String(c ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }).join(",")).join("\r\n"); }
 
-const STORAGE_KEY = "clay-health-hub/v3";
+/** Haptic feedback — fires a short vibration on supported devices. */
+function haptic(pattern = 40) {
+  try {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  } catch { /* iOS Safari doesn't support vibrate; ignore silently */ }
+}
+
+/* ============================================================
+   WAKE LOCK — keeps iPhone screen awake during workouts
+   ============================================================ */
+const WakeLock = (function () {
+  let lock = null;
+  let desired = false;
+
+  async function acquire() {
+    if (!("wakeLock" in navigator)) return false;
+    if (lock) return true;
+    try {
+      lock = await navigator.wakeLock.request("screen");
+      lock.addEventListener("release", () => {
+        lock = null;
+        updatePill();
+        // If we still want it, try to re-acquire on next user interaction
+      });
+      updatePill();
+      return true;
+    } catch (err) {
+      // iOS requires the page to be visible; ignore failures silently
+      return false;
+    }
+  }
+
+  function release() {
+    if (lock) {
+      try { lock.release(); } catch {}
+      lock = null;
+    }
+    updatePill();
+  }
+
+  function request() {
+    desired = true;
+    acquire();
+  }
+
+  function stop() {
+    desired = false;
+    release();
+  }
+
+  function updatePill() {
+    const pill = $("#wake-pill");
+    if (!pill) return;
+    pill.classList.toggle("is-on", !!lock);
+  }
+
+  // Re-acquire when returning to a visible tab
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && desired && !lock) {
+      acquire();
+    }
+  });
+
+  return { request, stop, isActive: () => !!lock };
+})();
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+const STORAGE_KEY = "clay-health-hub/v4";
 const SYNC_CFG_KEY = "clay-health-hub/sync-config";
+
 const DEFAULT_STATE = {
-  version: 3, createdAt: new Date().toISOString(),
+  version: 4, createdAt: new Date().toISOString(),
   settings: { theme:"auto", kcalTarget:2100, proteinTarget:130, stepTarget:7000, sessionsTarget:6 },
   glucose: [], checklists: {}, workouts: {}, diary: {}, water: {}, scorecard: {}, meds: [],
   _sync: { deviceId: uid(), settings:0, meds:0, glucose:{}, diary:{}, workouts:{}, water:{}, checklists:{}, scorecard:{} }
 };
+
+function migrateWorkouts(w) {
+  const out = {};
+  for (const [date, val] of Object.entries(w || {})) {
+    if (val && typeof val === "object" && "key" in val && "sets" in val) {
+      out[date] = { [val.key]: { sets: val.sets || {}, cardio: !!val.cardio } };
+    } else if (val && typeof val === "object") {
+      out[date] = val;
+    }
+  }
+  return out;
+}
+
 const Store = {
   data: structuredClone(DEFAULT_STATE),
-  load() { try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) this.data = this.migrate(JSON.parse(raw)); } catch(e) { console.warn(e); this.data = structuredClone(DEFAULT_STATE); } },
-  migrate(s) { const b = structuredClone(DEFAULT_STATE); if (!s || typeof s !== "object") return b; return {...b,...s, settings:{...b.settings,...(s.settings||{})}, glucose:Array.isArray(s.glucose)?s.glucose:[], checklists:s.checklists||{}, workouts:s.workouts||{}, diary:s.diary||{}, water:s.water||{}, scorecard:s.scorecard||{}, meds:Array.isArray(s.meds)?s.meds:[], _sync:{...b._sync,...(s._sync||{})} }; },
-  touch(col, key) { this.data._sync = this.data._sync || {}; if (key === undefined) this.data._sync[col] = Date.now(); else { const map = (this.data._sync[col] ||= {}); map[key] = Date.now(); } },
-  save: debounce(function() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Store.data)); } catch(e) { console.error(e); toast("Could not save.", "error"); } if (window.Sync) window.Sync.schedulePush(); }, 250),
-  saveNow() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data)); } catch(e) {} if (window.Sync) window.Sync.schedulePush(); },
+  load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) this.data = this.migrate(JSON.parse(raw));
+    } catch(e) { console.warn(e); this.data = structuredClone(DEFAULT_STATE); }
+  },
+  migrate(s) {
+    const b = structuredClone(DEFAULT_STATE);
+    if (!s || typeof s !== "object") return b;
+    return {
+      ...b, ...s,
+      settings:{...b.settings,...(s.settings||{})},
+      glucose:Array.isArray(s.glucose)?s.glucose:[],
+      checklists:s.checklists||{},
+      workouts:migrateWorkouts(s.workouts || {}),
+      diary:s.diary||{}, water:s.water||{}, scorecard:s.scorecard||{},
+      meds:Array.isArray(s.meds)?s.meds:[],
+      _sync:{...b._sync,...(s._sync||{})}
+    };
+  },
+  touch(col, key) {
+    this.data._sync = this.data._sync || {};
+    if (key === undefined) this.data._sync[col] = Date.now();
+    else { const map = (this.data._sync[col] ||= {}); map[key] = Date.now(); }
+  },
+  save: debounce(function() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Store.data)); }
+    catch(e) { console.error(e); toast("Could not save.", "error"); }
+    if (window.Sync) window.Sync.schedulePush();
+  }, 250),
+  saveNow() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Store.data)); }
+    catch(e) {}
+    if (window.Sync) window.Sync.schedulePush();
+  },
   reset() { this.data = structuredClone(DEFAULT_STATE); this.data._sync.deviceId = uid(); this.saveNow(); }
 };
 const settings = () => Store.data.settings;
 
+/* ============================================================
+   TOASTS
+   ============================================================ */
 function toast(message, type = "info", timeout = 4200) {
-  const host = $("#toasts"); const node = document.createElement("div"); node.className = `toast toast-${type}`;
+  const host = $("#toasts");
+  const node = document.createElement("div");
+  node.className = `toast toast-${type}`;
   const icon = { success:"✅", error:"⛔", warn:"⚠️", info:"ℹ️" }[type] || "ℹ️";
   node.innerHTML = `<span aria-hidden="true">${icon}</span><span>${esc(message)}</span>`;
   host.appendChild(node);
-  setTimeout(() => { node.classList.add("is-out"); node.addEventListener("animationend", () => node.remove(), { once: true }); setTimeout(() => node.remove(), 600); }, timeout);
+  setTimeout(() => {
+    node.classList.add("is-out");
+    node.addEventListener("animationend", () => node.remove(), { once: true });
+    setTimeout(() => node.remove(), 600);
+  }, timeout);
 }
 
+/* ============================================================
+   THEME
+   ============================================================ */
 function applyTheme() {
-  const pref = settings().theme; const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const pref = settings().theme;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const dark = pref === "dark" || (pref === "auto" && prefersDark);
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   const btn = $("#theme-toggle"), ico = $("#theme-ico");
@@ -890,49 +1123,146 @@ function initTheme() {
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (settings().theme === "auto") applyTheme(); });
   $("#theme-toggle").addEventListener("click", () => {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    settings().theme = isDark ? "light" : "dark"; Store.touch("settings"); Store.save(); applyTheme();
+    settings().theme = isDark ? "light" : "dark";
+    Store.touch("settings"); Store.save(); applyTheme();
+    haptic(20);
   });
 }
 
+/* ============================================================
+   NAV / ROUTING
+   ============================================================ */
 const SECTIONS = ["dashboard","workouts","meals","diary","scanner","safety","progress"];
 function showSection(id, { focus = true, updateHash = true } = {}) {
   if (!SECTIONS.includes(id)) id = "dashboard";
   $$(".section").forEach(s => s.classList.toggle("is-active", s.id === id));
-  $$("#main-nav .nav-item").forEach(btn => { if (btn.dataset.section === id) btn.setAttribute("aria-current", "page"); else btn.removeAttribute("aria-current"); });
+  $$("#main-nav .nav-item").forEach(btn => {
+    if (btn.dataset.section === id) btn.setAttribute("aria-current", "page");
+    else btn.removeAttribute("aria-current");
+  });
   if (updateHash && location.hash.slice(1) !== id) history.replaceState(null, "", `#${id}`);
-  if (focus) { const main = $("#main"); main.scrollTop = 0; const heading = $(`#${id} h1`); if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); } }
+  if (focus) {
+    const main = $("#main"); main.scrollTop = 0;
+    const heading = $(`#${id} h1`);
+    if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
+  }
+  // Camera lifecycle: stop when leaving Scanner
+  if (id !== "scanner" && window.Scanner && typeof Scanner.stopCamera === "function") {
+    try { Scanner.stopCamera(); } catch {}
+  }
+  // Wake lock: only keep screen awake while on the Workouts tab
+  if (id === "workouts") {
+    WakeLock.request();
+  } else {
+    WakeLock.stop();
+  }
   if (id === "diary") renderDiary();
   if (id === "progress") renderScorecard();
 }
 function initNav() {
   const nav = $("#main-nav");
-  nav.addEventListener("click", e => { const btn = e.target.closest(".nav-item"); if (btn) showSection(btn.dataset.section); });
+  nav.addEventListener("click", e => {
+    const btn = e.target.closest(".nav-item");
+    if (btn) { haptic(15); showSection(btn.dataset.section); }
+  });
   nav.addEventListener("keydown", e => {
     if (!["ArrowDown","ArrowUp","ArrowRight","ArrowLeft","Home","End"].includes(e.key)) return;
-    const items = $$(".nav-item", nav); const i = items.indexOf(document.activeElement); if (i === -1) return;
-    e.preventDefault(); let next = i;
+    const items = $$(".nav-item", nav);
+    const i = items.indexOf(document.activeElement);
+    if (i === -1) return;
+    e.preventDefault();
+    let next = i;
     if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (i+1) % items.length;
     if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (i-1+items.length) % items.length;
-    if (e.key === "Home") next = 0; if (e.key === "End") next = items.length - 1;
+    if (e.key === "Home") next = 0;
+    if (e.key === "End") next = items.length - 1;
     items[next].focus();
   });
-  document.addEventListener("click", e => { const goto = e.target.closest("[data-goto]"); if (goto) showSection(goto.dataset.goto); });
+  document.addEventListener("click", e => {
+    const goto = e.target.closest("[data-goto]");
+    if (goto) showSection(goto.dataset.goto);
+  });
   window.addEventListener("hashchange", () => showSection(location.hash.slice(1) || "dashboard", { focus: false, updateHash: false }));
   $("#print-btn").addEventListener("click", () => window.print());
-  $("#today-btn").addEventListener("click", () => { renderWorkouts(); renderDiary(); renderDashboard(); toast("Refreshed.", "info", 1500); });
+  $("#today-btn").addEventListener("click", () => {
+    renderWorkouts(); renderDiary(); renderDashboard();
+    toast("Refreshed.", "info", 1500);
+  });
 }
 
+/* ============================================================
+   REST TIMER — absolute-time based, haptic on finish
+   ============================================================ */
 const RestTimer = {
-  remaining: 90, duration: 90, running: false, handle: null, el: null,
-  init() { this.el = $("#rest-timer"); $("#rest-toggle").addEventListener("click", () => this.toggle()); $("#rest-close").addEventListener("click", () => this.stop()); },
-  start(s = 90) { this.duration = s; this.remaining = s; this.running = true; this.el.classList.add("is-open"); this.el.classList.remove("is-finished"); $("#rest-toggle").textContent = "Pause"; this.render(); this.tick(); },
-  tick() { clearInterval(this.handle); this.handle = setInterval(() => { if (!this.running) return; this.remaining -= 1; this.render(); if (this.remaining <= 0) this.finish(); }, 1000); },
-  finish() { clearInterval(this.handle); this.running = false; this.remaining = 0; this.render(); this.el.classList.add("is-finished"); $("#rest-toggle").textContent = "Restart"; if (navigator.vibrate) navigator.vibrate([180,90,180]); },
-  toggle() { if (this.remaining <= 0) return this.start(this.duration); this.running = !this.running; $("#rest-toggle").textContent = this.running ? "Pause" : "Resume"; },
-  stop() { clearInterval(this.handle); this.running = false; this.el.classList.remove("is-open","is-finished"); },
-  render() { const m = Math.floor(Math.max(this.remaining,0)/60); const s = Math.max(this.remaining,0)%60; $("#rest-time").textContent = `${m}:${String(s).padStart(2,"0")}`; }
+  endAt: 0, remaining: 90, duration: 90, running: false, handle: null, el: null,
+  init() {
+    this.el = $("#rest-timer");
+    $("#rest-toggle").addEventListener("click", () => { haptic(15); this.toggle(); });
+    $("#rest-close").addEventListener("click", () => { haptic(15); this.stop(); });
+  },
+  start(s = 90) {
+    this.duration = s;
+    this.endAt = Date.now() + s * 1000;
+    this.remaining = s;
+    this.running = true;
+    this.el.classList.add("is-open");
+    this.el.classList.remove("is-finished");
+    this.el.setAttribute("aria-live", "off");
+    $("#rest-toggle").textContent = "Pause";
+    this.render();
+    this.tick();
+  },
+  tick() {
+    clearInterval(this.handle);
+    this.handle = setInterval(() => {
+      if (!this.running) return;
+      this.render();
+      if (this.remaining <= 0) this.finish();
+    }, 250);
+  },
+  finish() {
+    clearInterval(this.handle);
+    this.running = false;
+    this.remaining = 0;
+    this.render();
+    this.el.classList.add("is-finished");
+    this.el.setAttribute("aria-live", "polite");
+    $("#rest-toggle").textContent = "Restart";
+    haptic([180, 90, 180, 90, 180]);
+  },
+  toggle() {
+    if (!this.running && this.remaining <= 0) return this.start(this.duration);
+    if (this.running) {
+      this.remaining = Math.max(0, Math.round((this.endAt - Date.now()) / 1000));
+      this.running = false;
+    } else {
+      this.endAt = Date.now() + this.remaining * 1000;
+      this.running = true;
+    }
+    $("#rest-toggle").textContent = this.running ? "Pause" : "Resume";
+  },
+  stop() {
+    clearInterval(this.handle);
+    this.running = false;
+    this.el.classList.remove("is-open", "is-finished");
+  },
+  render() {
+    let remaining;
+    if (this.running) {
+      remaining = Math.max(0, Math.round((this.endAt - Date.now()) / 1000));
+      this.remaining = remaining;
+    } else {
+      remaining = this.remaining;
+    }
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    $("#rest-time").textContent = `${m}:${String(s).padStart(2, "0")}`;
+  }
 };
 
+/* ============================================================
+   DAY PLAN + STREAK
+   ============================================================ */
 const DAY_PLAN = {
   0:{label:"Recovery",key:null,hint:"Rest, mobility, 20–30 min optional walk"},
   1:{label:"Push A",key:"pushA",hint:"Chest, shoulders, triceps"},
@@ -943,39 +1273,59 @@ const DAY_PLAN = {
   6:{label:"Legs B + Core",key:"legsB",hint:"Legs + conditioning"}
 };
 
+function hasRealWork(day) {
+  if (!day) return false;
+  return Object.values(day).some(sess =>
+    Object.values(sess?.sets || {}).some(s => Array.isArray(s) && s.some(x => x.done))
+  );
+}
 function currentStreak() {
-  const dates = new Set([...Object.keys(Store.data.workouts), ...Object.keys(Store.data.diary), ...Store.data.glucose.map(g=>g.date)]);
-  let streak = 0; const cursor = new Date();
-  if (!dates.has(isoDate(cursor))) cursor.setDate(cursor.getDate()-1);
-  while (dates.has(isoDate(cursor))) { streak += 1; cursor.setDate(cursor.getDate()-1); }
+  const dates = new Set();
+  Object.entries(Store.data.workouts).forEach(([date, day]) => { if (hasRealWork(day)) dates.add(date); });
+  Object.entries(Store.data.diary).forEach(([d, arr]) => { if ((arr || []).length) dates.add(d); });
+  Store.data.glucose.forEach(g => { if (g.pre || g.post) dates.add(g.date); });
+  let streak = 0;
+  const cursor = new Date();
+  if (!dates.has(isoDate(cursor))) cursor.setDate(cursor.getDate() - 1);
+  while (dates.has(isoDate(cursor))) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
   return streak;
 }
 function sessionsThisWeek() {
-  const start = weekKey(); const end = new Date(start); end.setDate(end.getDate()+7);
-  return Object.entries(Store.data.workouts).filter(([date, w]) => {
+  const start = weekKey();
+  const end = new Date(start); end.setDate(end.getDate() + 7);
+  return Object.entries(Store.data.workouts).filter(([date, day]) => {
     if (date < start || date >= isoDate(end)) return false;
-    return Object.values(w.sets || {}).some(s => s.some(x => x.done));
+    return hasRealWork(day);
   }).length;
 }
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
 function renderDashboard() {
   const plan = DAY_PLAN[new Date().getDay()];
   $("#dash-today").textContent = plan.label;
   $("#dash-today-hint").textContent = plan.hint;
   $("#dash-streak").textContent = currentStreak();
-  const sessions = sessionsThisWeek(); const target = settings().sessionsTarget;
+  const sessions = sessionsThisWeek();
+  const target = settings().sessionsTarget;
   $("#dash-sessions").textContent = sessions;
   $("#dash-sessions-target").textContent = `/${target} sessions`;
   $("#dash-sessions-bar").style.width = `${clamp((sessions/target)*100,0,100)}%`;
-  const readings = Store.data.glucose.filter(g => g.pre || g.post).sort((a,b) => (b.date + (b.time||"")).localeCompare(a.date + (a.time||"")));
+  const readings = Store.data.glucose
+    .filter(g => g.pre || g.post)
+    .sort((a,b) => (b.date + (b.time||"")).localeCompare(a.date + (a.time||"")));
   const last = readings[0];
   if (last) {
-    const value = last.pre || last.post; const v = num(value);
+    const value = last.pre || last.post;
+    const v = num(value);
     const isLow = v > 0 && v < 70, isHigh = v > 250;
     $("#dash-glucose-value").textContent = `${value} mg/dL`;
     $("#dash-glucose-value").style.color = isLow ? "var(--danger)" : isHigh ? "var(--warn)" : "var(--text)";
     $("#dash-glucose-hint").textContent = `${prettyDate(last.date)} · ${last.pre ? "pre-gym" : "post-gym"}`;
   } else {
-    $("#dash-glucose-value").textContent = "—"; $("#dash-glucose-value").style.color = "";
+    $("#dash-glucose-value").textContent = "—";
+    $("#dash-glucose-value").style.color = "";
     $("#dash-glucose-hint").textContent = "No readings logged yet";
   }
   const t = todayDiaryTotals();
@@ -986,22 +1336,36 @@ function renderDashboard() {
     ["Water", "8 glasses", String(Store.data.water[isoDate()] || 0)],
     ["Bed by", "7:30 PM", "—"]
   ];
-  $("#dash-targets").innerHTML = rows.map(([l,g,n]) => `<tr><th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--text);font-weight:600;padding-left:0;">${esc(l)}</th><td class="num">${esc(g)}</td><td class="num"><strong>${esc(n)}</strong></td></tr>`).join("");
+  $("#dash-targets").innerHTML = rows.map(([l,g,n]) => `
+    <tr>
+      <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--text);font-weight:600;padding-left:0;">${esc(l)}</th>
+      <td class="num">${esc(g)}</td>
+      <td class="num"><strong>${esc(n)}</strong></td>
+    </tr>`).join("");
   renderGlucoseChart("#dash-chart", readings.slice(0,14).reverse(), "dash-chart-toggle");
 }
+
 function renderGlucoseChart(hostSel, readings, toggleId) {
   const host = $(hostSel); if (!host) return;
   const toggle = toggleId ? $(`#${toggleId}`) : null;
   const asTable = toggle?.getAttribute("aria-pressed") === "true";
-  if (!readings.length) { host.innerHTML = `<div class="chart-empty">No readings yet. Log your first pre-gym glucose value to see the trend.</div>`; return; }
+  if (!readings.length) {
+    host.innerHTML = `<div class="chart-empty">No readings yet. Log your first pre-gym glucose value to see the trend.</div>`;
+    return;
+  }
   const points = readings.map(r => ({ label: prettyDate(r.date), value: num(r.pre || r.post) })).filter(p => p.value > 0);
   if (!points.length) { host.innerHTML = `<div class="chart-empty">Readings exist but contain no numeric values.</div>`; return; }
   if (asTable) {
-    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Glucose readings</caption><thead><tr><th scope="col">Date</th><th scope="col" class="num">mg/dL</th><th scope="col">Status</th></tr></thead><tbody>${points.map(p => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td><td>${p.value<70?'<span class="tag tag-legs">Low</span>':p.value>250?'<span class="tag tag-legs">High</span>':'<span class="tag tag-pull">In range</span>'}</td></tr>`).join("")}</tbody></table></div>`;
+    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Glucose readings</caption>
+      <thead><tr><th scope="col">Date</th><th scope="col" class="num">mg/dL</th><th scope="col">Status</th></tr></thead>
+      <tbody>${points.map(p => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td>
+        <td>${p.value<70?'<span class="tag tag-legs">Low</span>':p.value>250?'<span class="tag tag-legs">High</span>':'<span class="tag tag-pull">In range</span>'}</td></tr>`).join("")}
+      </tbody></table></div>`;
     return;
   }
   host.innerHTML = buildLineChart(points, { target: 70, ariaLabel: `Glucose trend across ${points.length} readings.` });
 }
+
 function buildLineChart(points, opts = {}) {
   const W = 660, H = 210, pad = { top: 18, right: 16, bottom: 34, left: 44 };
   const innerW = W - pad.left - pad.right, innerH = H - pad.top - pad.bottom;
@@ -1012,7 +1376,8 @@ function buildLineChart(points, opts = {}) {
   let hi = Math.ceil((dataMax + span*0.15)/10)*10;
   const x = i => pad.left + (points.length === 1 ? innerW/2 : (i/(points.length-1))*innerW);
   const y = v => pad.top + innerH - ((v-lo)/(hi-lo))*innerH;
-  const ticks = 4; let gridLines = "";
+  const ticks = 4;
+  let gridLines = "";
   for (let i = 0; i <= ticks; i++) {
     const v = lo + ((hi-lo)*i)/ticks, yy = y(v);
     gridLines += `<line class="grid-line" x1="${pad.left}" y1="${yy.toFixed(1)}" x2="${W-pad.right}" y2="${yy.toFixed(1)}"></line>`;
@@ -1022,15 +1387,31 @@ function buildLineChart(points, opts = {}) {
   const areaPath = `${linePath} L${x(points.length-1).toFixed(1)},${(pad.top+innerH).toFixed(1)} L${x(0).toFixed(1)},${(pad.top+innerH).toFixed(1)} Z`;
   const dots = points.map((p,i) => `<circle class="dot" cx="${x(i).toFixed(1)}" cy="${y(p.value).toFixed(1)}" r="3.5"><title>${esc(p.label)}: ${p.value}</title></circle>`).join("");
   const step = Math.max(1, Math.ceil(points.length/6));
-  const xLabels = points.map((p,i) => (i%step===0 || i===points.length-1) ? `<text class="axis-text" x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${esc(p.label.split(",")[0])}</text>` : "").join("");
+  const xLabels = points.map((p,i) => {
+    const showFirst = i === 0 && points.length > 1;
+    const showLast = i === points.length - 1;
+    const showStep = i % step === 0;
+    if (showFirst || showLast || (showStep && !showLast)) {
+      return `<text class="axis-text" x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${esc(p.label.split(",")[0])}</text>`;
+    }
+    return "";
+  }).join("");
   let targetLine = "";
   if (opts.target != null && opts.target >= lo && opts.target <= hi) {
     const ty = y(opts.target);
     targetLine = `<line class="target-line" x1="${pad.left}" y1="${ty.toFixed(1)}" x2="${W-pad.right}" y2="${ty.toFixed(1)}"></line>`;
   }
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.ariaLabel||"Line chart")}" preserveAspectRatio="xMidYMid meet">${gridLines}${targetLine}<path class="area" d="${areaPath}"></path><path class="series" d="${linePath}"></path>${dots}${xLabels}</svg>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.ariaLabel||"Line chart")}" preserveAspectRatio="xMidYMid meet">
+    ${gridLines}${targetLine}
+    <path class="area" d="${areaPath}"></path>
+    <path class="series" d="${linePath}"></path>
+    ${dots}${xLabels}
+  </svg>`;
 }
 
+/* ============================================================
+   WORKOUTS — with steppers, haptic on log, wake lock
+   ============================================================ */
 const WORKOUTS = {
   pushA:{title:"Push A — chest, shoulders, triceps",cardio:"10–15 min easy to moderate post-lifting.",exercises:[["Machine / DB chest press","3 × 8–12","2–3 RIR"],["Incline DB press","3 × 8–12","2 RIR"],["Seated DB shoulder press","2 × 8–12","2–3 RIR"],["Cable / lateral raise","3 × 12–15","2 RIR"],["Rope triceps pushdown","3 × 10–15","2 RIR"],["Overhead cable triceps extension","2 × 12–15","2 RIR"]]},
   pullA:{title:"Pull A — back, biceps, posture",cardio:"10–15 min easy to moderate post-lifting.",exercises:[["Lat pulldown","3 × 8–12","2 RIR"],["Seated cable row","3 × 8–12","2 RIR"],["Chest-supported DB / machine row","2 × 10–12","2 RIR"],["Face pull / reverse fly","3 × 12–15","2 RIR"],["DB curl","3 × 10–12","2 RIR"],["Hammer curl","2 × 10–15","2 RIR"]]},
@@ -1039,80 +1420,230 @@ const WORKOUTS = {
   pullB:{title:"Pull B — back + arms",cardio:"10–15 min easy to moderate post-lifting.",exercises:[["Neutral-grip lat pulldown","3 × 8–12","2 RIR"],["Machine / chest-supported row","3 × 8–12","2 RIR"],["Single-arm cable row","2 × 10–12/side","2 RIR"],["Reverse pec deck","3 × 12–15","2 RIR"],["EZ-bar / DB curl","3 × 8–12","2 RIR"],["Incline DB curl","2 × 10–15","2 RIR"]]},
   legsB:{title:"Legs B + core — conditioning",cardio:"20–30 min brisk cardio post-lifting.",exercises:[["Goblet squat or hack squat","3 × 8–12","2–3 RIR"],["Hip thrust / glute bridge","3 × 8–12","2 RIR"],["Walking lunge or split squat","2 × 8–10/leg","2–3 RIR"],["Seated / lying leg curl","3 × 10–15","2 RIR"],["Seated calf raise","3 × 12–15","2 RIR"],["Cable crunch","3 × 10–15","2 RIR"],["Pallof press","2 × 10–12/side","Controlled"]]}
 };
+
 function setCount(p) { const m = String(p).match(/^(\d+)\s*[×x]/); return m ? clamp(parseInt(m[1],10),1,10) : 3; }
+function currentRoutineKey() { return $("#workout-selector").value; }
+
 function todaysSession() {
-  const key = $("#workout-selector").value; const date = isoDate();
+  const key = currentRoutineKey();
+  const date = isoDate();
   const store = Store.data.workouts;
-  if (!store[date] || store[date].key !== key) {
-    store[date] = { key, sets: {}, cardio: store[date]?.key === key ? store[date].cardio : false };
+  if (!store[date]) { store[date] = {}; Store.touch("workouts", date); }
+  if (!store[date][key]) {
+    store[date][key] = { sets: {}, cardio: false };
     Store.touch("workouts", date);
   }
-  return store[date];
+  return store[date][key];
 }
+
+/** Compute the current set's step from the previous set to help progression. */
+function suggestedWeight(sets, idx) {
+  if (idx === 0) return sets[0]?.w || "";
+  return sets[idx - 1]?.w || "";
+}
+function suggestedReps(sets, idx) {
+  if (idx === 0) return sets[0]?.r || "";
+  return sets[idx - 1]?.r || "";
+}
+
 function renderWorkouts() {
-  const key = $("#workout-selector").value; const data = WORKOUTS[key]; const session = todaysSession();
+  const key = currentRoutineKey();
+  const data = WORKOUTS[key];
+  const session = todaysSession();
   $("#workout-title").textContent = data.title;
   $("#workout-cardio").textContent = data.cardio;
   $("#cardio-done").checked = !!session.cardio;
+
   const list = $("#workout-list");
   list.innerHTML = data.exercises.map((ex, exIndex) => {
-    const [name, presc, effort] = ex; const count = setCount(presc);
-    if (!session.sets[name]) session.sets[name] = Array.from({ length: count }, () => ({ w:"", r:"", done:false }));
-    const sets = session.sets[name]; const bodyId = `ex-body-${exIndex}`;
-    const setRows = sets.map((s, i) => `
+    const [name, presc, effort] = ex;
+    const count = setCount(presc);
+    if (!session.sets[name]) {
+      session.sets[name] = Array.from({ length: count }, () => ({ w:"", r:"", done:false }));
+    }
+    const sets = session.sets[name];
+    const bodyId = `ex-body-${exIndex}`;
+    const setRows = sets.map((s, i) => {
+      const wVal = s.w !== "" ? s.w : suggestedWeight(sets, i);
+      const rVal = s.r !== "" ? s.r : suggestedReps(sets, i);
+      return `
       <div class="set-row${s.done ? " is-done" : ""}" data-ex="${esc(name)}" data-set="${i}">
-        <span class="set-no">Set ${i+1}</span>
-        <span class="unit-input"><input type="number" inputmode="decimal" min="0" max="1000" step="0.5" value="${esc(s.w)}" placeholder="—" data-field="w" aria-label="${esc(name)} set ${i+1} weight"><span class="u">kg</span></span>
-        <span class="unit-input"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="${esc(s.r)}" placeholder="—" data-field="r" aria-label="${esc(name)} set ${i+1} reps"><span class="u">reps</span></span>
-        <input type="checkbox" data-field="done" ${s.done ? "checked" : ""} aria-label="Mark ${esc(name)} set ${i+1} complete">
-      </div>`).join("");
+        <span class="set-no">S${i+1}</span>
+        <div class="stepper" data-step-kind="w">
+          <button type="button" class="step-btn" data-step="-2.5" aria-label="Decrease weight by 2.5 kg">−</button>
+          <input type="number" inputmode="decimal" min="0" max="1000" step="0.5"
+                 value="${esc(wVal)}" placeholder="—" data-field="w"
+                 aria-label="${esc(name)} set ${i+1} weight in kilograms">
+          <button type="button" class="step-btn" data-step="2.5" aria-label="Increase weight by 2.5 kg">+</button>
+        </div>
+        <div class="stepper" data-step-kind="r">
+          <button type="button" class="step-btn" data-step="-1" aria-label="Decrease reps by 1">−</button>
+          <input type="number" inputmode="numeric" min="0" max="100" step="1"
+                 value="${esc(rVal)}" placeholder="—" data-field="r"
+                 aria-label="${esc(name)} set ${i+1} reps">
+          <button type="button" class="step-btn" data-step="1" aria-label="Increase reps by 1">+</button>
+        </div>
+        <button type="button" class="done-btn" data-field="done"
+                aria-pressed="${s.done ? "true" : "false"}"
+                aria-label="${s.done ? "Unmark" : "Mark"} ${esc(name)} set ${i+1} as done">
+          ${s.done ? "✓" : ""}
+        </button>
+      </div>`;
+    }).join("");
     return `<div class="exercise">
       <div class="ex-head">
-        <div class="ex-info"><p class="ex-name">${esc(name)}</p><p class="ex-meta"><span>${esc(presc)}</span><span aria-hidden="true">·</span><span class="tag tag-effort">${esc(effort)}</span></p></div>
+        <div class="ex-info">
+          <p class="ex-name">${esc(name)}</p>
+          <p class="ex-meta"><span>${esc(presc)}</span><span aria-hidden="true">·</span><span class="tag tag-effort">${esc(effort)}</span></p>
+        </div>
         <button class="btn btn-ghost btn-sm" type="button" data-act="toggle-ex" aria-expanded="false" aria-controls="${bodyId}">Sets</button>
       </div>
       <div class="ex-body" id="${bodyId}" hidden><div class="set-grid">${setRows}</div></div>
     </div>`;
   }).join("");
+
   updateWorkoutProgress();
 }
+
 function updateWorkoutProgress() {
-  const s = Store.data.workouts[isoDate()]; if (!s) return;
-  const all = Object.values(s.sets).flat(); const done = all.filter(x => x.done).length;
+  const key = currentRoutineKey();
+  const date = isoDate();
+  const session = Store.data.workouts[date]?.[key];
+  if (!session) {
+    $("#workout-progress-label").textContent = "";
+    return;
+  }
+  const all = Object.values(session.sets).flat();
+  const done = all.filter(x => x.done).length;
   $("#workout-progress-label").textContent = `${done} / ${all.length} sets complete`;
 }
+
+/** Press-and-hold stepper logic — single tap = 1 step, hold = repeat */
+let stepperPressTimer = null;
+let stepperRepeatTimer = null;
+function startStepperPress(button, input, step) {
+  const apply = () => {
+    const cur = num(input.value) || 0;
+    const next = Math.max(0, round1(cur + step));
+    input.value = next === 0 ? "" : String(next);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    haptic(12);
+  };
+  apply();
+  clearTimeout(stepperPressTimer);
+  clearInterval(stepperRepeatTimer);
+  stepperPressTimer = setTimeout(() => {
+    stepperRepeatTimer = setInterval(apply, 90);
+  }, 400);
+}
+function endStepperPress() {
+  clearTimeout(stepperPressTimer);
+  clearInterval(stepperRepeatTimer);
+  stepperPressTimer = null;
+  stepperRepeatTimer = null;
+}
+
 function initWorkouts() {
-  $("#workout-selector").addEventListener("change", renderWorkouts);
+  $("#workout-selector").addEventListener("change", () => { haptic(20); renderWorkouts(); });
+
+  // Toggle exercise sets panel
   $("#workout-list").addEventListener("click", e => {
-    const btn = e.target.closest('[data-act="toggle-ex"]'); if (!btn) return;
+    const btn = e.target.closest('[data-act="toggle-ex"]');
+    if (!btn) return;
+    haptic(15);
     const body = document.getElementById(btn.getAttribute("aria-controls"));
     const open = btn.getAttribute("aria-expanded") === "true";
-    btn.setAttribute("aria-expanded", String(!open)); body.hidden = open; btn.textContent = open ? "Sets" : "Hide";
+    btn.setAttribute("aria-expanded", String(!open));
+    body.hidden = open;
+    btn.textContent = open ? "Sets" : "Hide";
   });
+
+  // Stepper buttons: pointer events give us press-and-hold on both touch and mouse
+  $("#workout-list").addEventListener("pointerdown", e => {
+    const btn = e.target.closest(".step-btn");
+    if (!btn) return;
+    e.preventDefault();
+    const input = btn.parentElement.querySelector("input");
+    const step = parseFloat(btn.dataset.step) || 0;
+    if (!input || !step) return;
+    startStepperPress(btn, input, step);
+  });
+  ["pointerup", "pointercancel", "pointerleave", "pointerout"].forEach(evt => {
+    $("#workout-list").addEventListener(evt, e => {
+      if (e.target.closest(".step-btn")) endStepperPress();
+    });
+  });
+
+  // Inputs: update store without re-rendering so focus is preserved
   $("#workout-list").addEventListener("input", e => {
-    const field = e.target.dataset.field; if (!field || field === "done") return;
-    const row = e.target.closest(".set-row"); if (!row) return;
-    const session = Store.data.workouts[isoDate()];
-    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)]; if (!set) return;
-    set[field] = e.target.value; Store.touch("workouts", isoDate()); Store.save();
-  });
-  $("#workout-list").addEventListener("change", e => {
-    if (e.target.dataset.field !== "done") return;
-    const row = e.target.closest(".set-row"); const session = Store.data.workouts[isoDate()];
-    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)]; if (!set) return;
-    set.done = e.target.checked; row.classList.toggle("is-done", set.done);
-    Store.touch("workouts", isoDate()); Store.save(); updateWorkoutProgress();
-    if (set.done) RestTimer.start(90);
-  });
-  $("#cardio-done").addEventListener("change", e => { todaysSession().cardio = e.target.checked; Store.touch("workouts", isoDate()); Store.save(); });
-  $("#reset-session").addEventListener("click", () => {
-    if (!confirm("Clear today's logged sets?")) return;
+    const input = e.target;
+    const field = input.dataset.field;
+    if (field !== "w" && field !== "r") return;
+    const row = input.closest(".set-row");
+    if (!row) return;
+    const key = currentRoutineKey();
     const date = isoDate();
-    if (Store.data.workouts[date]) { Store.data.workouts[date].sets = {}; Store.data.workouts[date].cardio = false; Store.touch("workouts", date); }
-    Store.saveNow(); renderWorkouts(); toast("Session reset.", "warn");
+    const session = Store.data.workouts[date]?.[key];
+    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)];
+    if (!set) return;
+    set[field] = input.value;
+    Store.touch("workouts", date);
+    Store.save();
+  });
+
+  // Done button: toggle set completion, haptic, wake-lock request, rest timer
+  $("#workout-list").addEventListener("click", e => {
+    const btn = e.target.closest(".done-btn");
+    if (!btn) return;
+    const row = btn.closest(".set-row");
+    const key = currentRoutineKey();
+    const date = isoDate();
+    const session = Store.data.workouts[date]?.[key];
+    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)];
+    if (!set) return;
+    set.done = !set.done;
+    btn.setAttribute("aria-pressed", String(set.done));
+    btn.textContent = set.done ? "✓" : "";
+    btn.setAttribute("aria-label", `${set.done ? "Unmark" : "Mark"} ${row.dataset.ex} set ${Number(row.dataset.set)+1} as done`);
+    row.classList.toggle("is-done", set.done);
+    Store.touch("workouts", date);
+    Store.save();
+    updateWorkoutProgress();
+    if (set.done) {
+      haptic(45);
+      WakeLock.request();
+      RestTimer.start(90);
+    } else {
+      haptic(15);
+    }
+  });
+
+  $("#cardio-done").addEventListener("change", e => {
+    todaysSession().cardio = e.target.checked;
+    Store.touch("workouts", isoDate());
+    Store.save();
+    haptic(20);
+  });
+
+  $("#reset-session").addEventListener("click", () => {
+    const key = currentRoutineKey();
+    const label = WORKOUTS[key]?.title || key;
+    if (!confirm(`Clear today's logged sets for "${label}"? Other routines will be kept.`)) return;
+    const date = isoDate();
+    if (Store.data.workouts[date]?.[key]) {
+      Store.data.workouts[date][key] = { sets: {}, cardio: false };
+      Store.touch("workouts", date);
+    }
+    Store.saveNow();
+    renderWorkouts();
+    haptic(60);
+    toast("Routine reset.", "warn");
   });
 }
 
+/* ============================================================
+   MEALS
+   ============================================================ */
 const MEALS = {
   1:{b:"Poha + 2 eggs",c:"Milk coffee + 10 almonds",pre:"Banana + curd",l:"Chicken curry + 2 small rotis + salad + curd",d:"Paneer bhurji + vegetables"},
   2:{b:"2 moong-dal chilla + curd",c:"Milk coffee + 1 boiled egg",pre:"Apple + 2 eggs",l:"Fish + ¾ cup rice + vegetables",d:"Dal + paneer + salad + 1 roti"},
@@ -1148,18 +1679,26 @@ const MEALS = {
 function initMeals() {
   const sel = $("#meal-day-selector");
   sel.innerHTML = Object.keys(MEALS).map(d => `<option value="${d}">Day ${d}</option>`).join("");
-  sel.addEventListener("change", renderMealDay);
-  $("#meal-today").addEventListener("click", () => { const day = clamp(new Date().getDate(),1,30); sel.value = String(day); renderMealDay(); toast(`Showing rotation day ${day}.`, "info", 1800); });
+  sel.addEventListener("change", () => { haptic(15); renderMealDay(); });
+  $("#meal-today").addEventListener("click", () => {
+    const day = clamp(new Date().getDate(), 1, 30);
+    sel.value = String(day);
+    renderMealDay();
+    haptic(20);
+    toast(`Showing rotation day ${day}.`, "info", 1800);
+  });
   renderMealDay();
 }
 function renderMealDay() {
-  const day = $("#meal-day-selector").value; const m = MEALS[day]; if (!m) return;
+  const day = $("#meal-day-selector").value;
+  const m = MEALS[day];
+  if (!m) return;
   const blocks = [
-    ["🌅 Breakfast","6:15–6:30 AM",m.b,"Plus sugar-free milk tea at 4:15 AM"],
-    ["☕ Mid-morning","10:00 AM",m.c,""],
-    ["🍌 Pre-workout","12:45–1:00 PM",m.pre,"Optional — based on glucose and energy"],
-    ["🍗 Post-workout lunch","3:00–3:30 PM",m.l,""],
-    ["🌙 Dinner","6:30–7:30 PM",m.d,"Medicines as prescribed by your clinician"]
+    ["🌅 Breakfast", "6:15–6:30 AM", m.b, "Plus sugar-free milk tea at 4:15 AM"],
+    ["☕ Mid-morning", "10:00 AM", m.c, ""],
+    ["🍌 Pre-workout", "12:45–1:00 PM", m.pre, "Optional — based on glucose and energy"],
+    ["🍗 Post-workout lunch", "3:00–3:30 PM", m.l, ""],
+    ["🌙 Dinner", "6:30–7:30 PM", m.d, "Medicines as prescribed by your clinician"]
   ];
   $("#meal-display").innerHTML = blocks.map(([t,tm,b,n]) => `
     <div class="card">
@@ -1170,12 +1709,29 @@ function renderMealDay() {
     </div>`).join("");
 }
 
-function todayDiaryTotals() {
-  const entries = Store.data.diary[isoDate()] || [];
-  return entries.reduce((a,e) => ({ kcal:a.kcal+num(e.kcal), pro:a.pro+num(e.pro), carb:a.carb+num(e.carb), fat:a.fat+num(e.fat) }), { kcal:0, pro:0, carb:0, fat:0 });
+/* ============================================================
+   DIARY
+   ============================================================ */
+let diaryDate = isoDate();
+
+function diaryTotals(date = diaryDate) {
+  const entries = Store.data.diary[date] || [];
+  return entries.reduce((a,e) => ({
+    kcal: a.kcal + num(e.kcal),
+    pro: a.pro + num(e.pro),
+    carb: a.carb + num(e.carb),
+    fat: a.fat + num(e.fat)
+  }), { kcal:0, pro:0, carb:0, fat:0 });
 }
+function todayDiaryTotals() { return diaryTotals(isoDate()); }
+
 function renderDiary() {
-  const date = isoDate(); const entries = Store.data.diary[date] || []; const totals = todayDiaryTotals(); const s = settings();
+  const date = diaryDate;
+  const entries = Store.data.diary[date] || [];
+  const totals = diaryTotals(date);
+  const s = settings();
+
+  $("#diary-date").value = date;
   $("#diary-date-label").textContent = `${prettyDate(date)} — intake, macros and water`;
   $("#diary-kcal").textContent = Math.round(totals.kcal);
   $("#diary-kcal-goal").textContent = `/ ${s.kcalTarget}`;
@@ -1184,18 +1740,33 @@ function renderDiary() {
   $("#diary-pro-bar").style.width = `${clamp((totals.pro/s.proteinTarget)*100,0,100)}%`;
   $("#diary-carb").textContent = Math.round(totals.carb);
   $("#diary-water").textContent = Store.data.water[date] || 0;
+
   const badge = $("#diary-badge");
-  if (entries.length) { badge.textContent = String(entries.length); badge.hidden = false; } else badge.hidden = true;
+  const todayCount = (Store.data.diary[isoDate()] || []).length;
+  if (todayCount) { badge.textContent = String(todayCount); badge.hidden = false; } else badge.hidden = true;
+
   const list = $("#diary-list");
-  if (!entries.length) { list.innerHTML = `<div class="chart-empty">Nothing logged today. Scan a product or add an entry.</div>`; return; }
+  if (!entries.length) {
+    list.innerHTML = `<div class="chart-empty">Nothing logged for this date. Scan a product or add an entry.</div>`;
+    return;
+  }
   const byMeal = entries.reduce((a,e) => { (a[e.meal] ||= []).push(e); return a; }, {});
   list.innerHTML = Object.entries(byMeal).map(([meal, items]) => `
     <div style="margin-bottom:16px;">
-      <div class="card-head" style="margin-bottom:6px;"><h3>${esc(meal)}</h3><div class="spacer"></div><span class="stat-hint">${Math.round(items.reduce((a,i)=>a+num(i.kcal),0))} kcal</span></div>
+      <div class="card-head" style="margin-bottom:6px;">
+        <h3>${esc(meal)}</h3>
+        <div class="spacer"></div>
+        <span class="stat-hint">${Math.round(items.reduce((a,i)=>a+num(i.kcal),0))} kcal</span>
+      </div>
       <div class="table-wrap">
         <table>
           <caption class="sr-only">${esc(meal)} entries</caption>
-          <thead><tr><th scope="col">Item</th><th scope="col" class="num">Qty</th><th scope="col" class="num">kcal</th><th scope="col" class="num">P</th><th scope="col" class="num">C</th><th scope="col" class="num">F</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
+          <thead><tr>
+            <th scope="col">Item</th><th scope="col" class="num">Qty</th>
+            <th scope="col" class="num">kcal</th><th scope="col" class="num">P</th>
+            <th scope="col" class="num">C</th><th scope="col" class="num">F</th>
+            <th scope="col"><span class="sr-only">Remove</span></th>
+          </tr></thead>
           <tbody>${items.map(i => `
             <tr>
               <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;color:var(--text);padding-left:12px;">${esc(i.name)}</th>
@@ -1211,25 +1782,55 @@ function renderDiary() {
       </div>
     </div>`).join("");
 }
+
 function initDiary() {
-  const changeWater = d => { const date = isoDate(); Store.data.water[date] = clamp((Store.data.water[date]||0)+d,0,30); Store.touch("water",date); Store.save(); renderDiary(); };
+  const dateInput = $("#diary-date");
+  dateInput.max = isoDate();
+  dateInput.value = diaryDate;
+  dateInput.addEventListener("change", e => {
+    diaryDate = e.target.value || isoDate();
+    renderDiary();
+  });
+
+  const changeWater = d => {
+    const date = diaryDate;
+    Store.data.water[date] = clamp((Store.data.water[date]||0)+d, 0, 30);
+    Store.touch("water", date);
+    Store.save();
+    renderDiary();
+    haptic(15);
+  };
   $("#water-plus").addEventListener("click", () => changeWater(1));
   $("#water-minus").addEventListener("click", () => changeWater(-1));
+
   $("#diary-list").addEventListener("click", e => {
-    const btn = e.target.closest("[data-remove-entry]"); if (!btn) return;
-    const id = btn.dataset.removeEntry; const d = isoDate();
+    const btn = e.target.closest("[data-remove-entry]");
+    if (!btn) return;
+    const id = btn.dataset.removeEntry;
+    const d = diaryDate;
     Store.data.diary[d] = (Store.data.diary[d]||[]).filter(x => x.id !== id);
     if (!Store.data.diary[d].length) delete Store.data.diary[d];
-    Store.touch("diary", d); Store.saveNow(); renderDiary(); toast("Entry removed.", "info", 2000);
+    Store.touch("diary", d);
+    Store.saveNow();
+    renderDiary();
+    haptic(30);
+    toast("Entry removed.", "info", 2000);
   });
+
   $("#diary-export").addEventListener("click", () => {
-    const date = isoDate(); const entries = Store.data.diary[date] || [];
+    const date = diaryDate;
+    const entries = Store.data.diary[date] || [];
     if (!entries.length) return toast("No entries to export.", "warn");
-    const rows = [["Date","Meal","Item","Qty","Unit","kcal","Protein","Carbs","Fat"], ...entries.map(e => [date, e.meal, e.name, e.qty, e.unit, e.kcal, e.pro, e.carb, e.fat])];
-    download(`food-diary-${date}.csv`, toCSV(rows), "text/csv"); toast("Exported.", "success");
+    const rows = [["Date","Meal","Item","Qty","Unit","kcal","Protein","Carbs","Fat"],
+      ...entries.map(e => [date, e.meal, e.name, e.qty, e.unit, e.kcal, e.pro, e.carb, e.fat])];
+    download(`food-diary-${date}.csv`, toCSV(rows), "text/csv");
+    toast("Exported.", "success");
   });
 }
 
+/* ============================================================
+   SCANNER
+   ============================================================ */
 const LOCAL_PRODUCTS = {
   "8901030":{name:"Amul Taaza Milk (500 ml)",kcal:60,pro:3.2,carb:4.8,fat:3.2,per:"100 ml",source:"Offline DB"},
   "8901725":{name:"Britannia Good Day Cookies",kcal:500,pro:6.5,carb:66,fat:24,per:"100 g",source:"Offline DB"},
@@ -1239,21 +1840,40 @@ const LOCAL_PRODUCTS = {
   "generic-egg":{name:"Boiled egg (large)",kcal:78,pro:6.3,carb:0.6,fat:5.3,per:"50 g",source:"Offline DB"},
   "generic-curd":{name:"Unsweetened curd",kcal:98,pro:11,carb:3.6,fat:4.3,per:"100 g",source:"Offline DB"}
 };
+
 const Scanner = {
   stream:null, detector:null, rafId:null, lastCode:null, current:null,
   async startCamera() {
+    if (this.stream) return;
     if (!navigator.mediaDevices?.getUserMedia) return toast("Camera not supported.", "error");
-    try { this.stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment", width:{ideal:1280}, height:{ideal:720} }, audio:false }); }
-    catch { return toast("Camera permission denied.", "error"); }
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:"environment", width:{ideal:1280}, height:{ideal:720} },
+        audio:false
+      });
+    } catch { return toast("Camera permission denied.", "error"); }
     let el = $("#scanner-video");
-    if (!el) { el = document.createElement("video"); el.id = "scanner-video"; el.setAttribute("playsinline",""); el.muted = true; $("#scanner-view").prepend(el); }
-    el.srcObject = this.stream; await el.play().catch(()=>{});
-    $("#scanner-placeholder").hidden = true; $("#scan-frame").hidden = false;
-    $("#camera-start").disabled = true; $("#camera-stop").disabled = false;
+    if (!el) {
+      el = document.createElement("video");
+      el.id = "scanner-video";
+      el.setAttribute("playsinline","");
+      el.muted = true;
+      $("#scanner-view").prepend(el);
+    }
+    el.srcObject = this.stream;
+    await el.play().catch(()=>{});
+    $("#scanner-placeholder").hidden = true;
+    $("#scan-frame").hidden = false;
+    $("#camera-start").disabled = true;
+    $("#camera-stop").disabled = false;
     $("#camera-status").textContent = "Camera on";
+    haptic(20);
     if ("BarcodeDetector" in window) {
-      try { this.detector = new window.BarcodeDetector({ formats:["ean_13","ean_8","upc_a","upc_e","code_128","qr_code"] }); this.scanLoop(el); $("#camera-status").textContent = "Scanning…"; }
-      catch { this.detector = null; }
+      try {
+        this.detector = new window.BarcodeDetector({ formats:["ean_13","ean_8","upc_a","upc_e","code_128","qr_code"] });
+        this.scanLoop(el);
+        $("#camera-status").textContent = "Scanning…";
+      } catch { this.detector = null; }
     } else $("#camera-status").textContent = "Preview only — type the code";
   },
   scanLoop(video) {
@@ -1263,7 +1883,13 @@ const Scanner = {
         const codes = await this.detector.detect(video);
         if (codes.length) {
           const raw = codes[0].rawValue;
-          if (raw && raw !== this.lastCode) { this.lastCode = raw; $("#barcode-input").value = raw; await lookupBarcode(raw); setTimeout(() => { this.lastCode = null; }, 4000); }
+          if (raw && raw !== this.lastCode) {
+            this.lastCode = raw;
+            $("#barcode-input").value = raw;
+            haptic(30);
+            await lookupBarcode(raw);
+            setTimeout(() => { this.lastCode = null; }, 4000);
+          }
         }
       } catch {}
       this.rafId = requestAnimationFrame(tick);
@@ -1271,42 +1897,85 @@ const Scanner = {
     this.rafId = requestAnimationFrame(tick);
   },
   stopCamera() {
-    cancelAnimationFrame(this.rafId); this.rafId = null; this.detector = null;
-    if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
-    const v = $("#scanner-video"); if (v) v.remove();
-    $("#scanner-placeholder").hidden = false; $("#scan-frame").hidden = true;
-    $("#camera-start").disabled = false; $("#camera-stop").disabled = true;
-    $("#camera-status").textContent = "Camera off";
+    if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
+    this.detector = null;
+    if (this.stream) {
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = null;
+    }
+    const v = $("#scanner-video");
+    if (v) v.remove();
+    const placeholder = $("#scanner-placeholder");
+    if (placeholder) placeholder.hidden = false;
+    const frame = $("#scan-frame");
+    if (frame) frame.hidden = true;
+    const start = $("#camera-start");
+    const stop = $("#camera-stop");
+    if (start) start.disabled = false;
+    if (stop) stop.disabled = true;
+    const status = $("#camera-status");
+    if (status) status.textContent = "Camera off";
   }
 };
+window.Scanner = Scanner;
+
 async function lookupBarcode(query) {
   const q = String(query || "").trim();
   if (!q) return toast("Enter a barcode or product name.", "warn");
   const key = q.toLowerCase();
   if (LOCAL_PRODUCTS[key]) return showScanResult(LOCAL_PRODUCTS[key]);
+
+  if (!navigator.onLine) {
+    toast("You're offline — try an offline code like 8901030.", "warn", 5000);
+    return;
+  }
+
   if (/^\d{6,14}$/.test(q)) {
     try {
       const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(q)}.json?fields=product_name,brands,nutriments,image_small_url`;
-      const res = await fetch(url, { headers:{ Accept:"application/json" } });
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(url, { headers:{ Accept:"application/json" }, signal: ctrl.signal });
+      clearTimeout(timeout);
       if (!res.ok) throw new Error();
       const json = await res.json();
       if (json.status !== 1 || !json.product) throw new Error();
       const p = json.product, n = p.nutriments || {};
-      return showScanResult({ name:[p.brands,p.product_name].filter(Boolean).join(" — ") || "Unnamed product", kcal:Math.round(num(n["energy-kcal_100g"])), pro:round1(num(n.proteins_100g)), carb:round1(num(n.carbohydrates_100g)), fat:round1(num(n.fat_100g)), per:"100 g", source:"Open Food Facts", image:p.image_small_url || "" });
+      return showScanResult({
+        name:[p.brands,p.product_name].filter(Boolean).join(" — ") || "Unnamed product",
+        kcal:Math.round(num(n["energy-kcal_100g"])),
+        pro:round1(num(n.proteins_100g)),
+        carb:round1(num(n.carbohydrates_100g)),
+        fat:round1(num(n.fat_100g)),
+        per:"100 g", source:"Open Food Facts", image:p.image_small_url || ""
+      });
     } catch {
       toast("Online lookup failed — using estimate.", "warn");
       return showScanResult({ name:`Unknown product (${q})`, kcal:150, pro:5, carb:20, fat:5, per:"100 g", source:"Estimate" });
     }
   }
+
   try {
     const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=1&fields=product_name,brands,nutriments,image_small_url`;
-    const res = await fetch(url, { headers:{ Accept:"application/json" } });
-    const json = await res.json(); const p = json.products?.[0];
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(url, { headers:{ Accept:"application/json" }, signal: ctrl.signal });
+    clearTimeout(timeout);
+    const json = await res.json();
+    const p = json.products?.[0];
     if (!p) throw new Error();
     const n = p.nutriments || {};
-    showScanResult({ name:[p.brands,p.product_name].filter(Boolean).join(" — ") || q, kcal:Math.round(num(n["energy-kcal_100g"])), pro:round1(num(n.proteins_100g)), carb:round1(num(n.carbohydrates_100g)), fat:round1(num(n.fat_100g)), per:"100 g", source:"Open Food Facts", image:p.image_small_url || "" });
+    showScanResult({
+      name:[p.brands,p.product_name].filter(Boolean).join(" — ") || q,
+      kcal:Math.round(num(n["energy-kcal_100g"])),
+      pro:round1(num(n.proteins_100g)),
+      carb:round1(num(n.carbohydrates_100g)),
+      fat:round1(num(n.fat_100g)),
+      per:"100 g", source:"Open Food Facts", image:p.image_small_url || ""
+    });
   } catch { toast("No match found.", "error"); }
 }
+
 function showScanResult(product) {
   Scanner.current = product;
   $("#scan-result-card").style.display = "block";
@@ -1322,25 +1991,58 @@ function showScanResult(product) {
   else { img.style.display = "none"; img.removeAttribute("src"); }
   $("#scan-result-card").scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
+
 function initScanner() {
   $("#camera-start").addEventListener("click", () => Scanner.startCamera());
   $("#camera-stop").addEventListener("click", () => Scanner.stopCamera());
   $("#lookup-btn").addEventListener("click", () => lookupBarcode($("#barcode-input").value));
   $("#barcode-input").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); lookupBarcode(e.target.value); } });
-  $("#random-scan").addEventListener("click", () => { const keys = Object.keys(LOCAL_PRODUCTS); const pick = keys[Math.floor(Math.random()*keys.length)]; $("#barcode-input").value = pick; lookupBarcode(pick); });
-  $("#discard-scan").addEventListener("click", () => { Scanner.current = null; $("#scan-result-card").style.display = "none"; });
+  $("#random-scan").addEventListener("click", () => {
+    const keys = Object.keys(LOCAL_PRODUCTS);
+    const pick = keys[Math.floor(Math.random()*keys.length)];
+    $("#barcode-input").value = pick;
+    lookupBarcode(pick);
+  });
+  $("#discard-scan").addEventListener("click", () => {
+    Scanner.current = null;
+    $("#scan-result-card").style.display = "none";
+    haptic(15);
+  });
   $("#add-scanned").addEventListener("click", () => {
     const p = Scanner.current; if (!p) return;
-    const grams = clamp(num($("#scan-qty").value)||100, 1, 5000); const factor = grams/100;
-    const meal = $("#scan-meal").value; const date = isoDate();
-    const entry = { id:uid(), name:p.name, qty:grams, unit:"g", kcal:Math.round(p.kcal*factor), pro:round1(p.pro*factor), carb:round1(p.carb*factor), fat:round1(p.fat*factor), meal, time:new Date().toTimeString().slice(0,5) };
+    const grams = clamp(num($("#scan-qty").value)||100, 1, 5000);
+    const factor = grams/100;
+    const meal = $("#scan-meal").value;
+    const date = isoDate();
+    const entry = {
+      id: uid(), name: p.name, qty: grams, unit: "g",
+      kcal: Math.round(p.kcal*factor),
+      pro: round1(p.pro*factor),
+      carb: round1(p.carb*factor),
+      fat: round1(p.fat*factor),
+      meal, time: new Date().toTimeString().slice(0,5)
+    };
     (Store.data.diary[date] ||= []).push(entry);
-    Store.touch("diary", date); Store.saveNow(); renderDiary(); renderDashboard();
+    Store.touch("diary", date);
+    Store.saveNow();
+    if (diaryDate !== date) diaryDate = date;
+    renderDiary();
+    renderDashboard();
+    haptic(40);
     toast(`Added ${entry.name} (${grams} g) to ${meal}.`, "success");
-    $("#scan-result-card").style.display = "none"; Scanner.current = null;
+    $("#scan-result-card").style.display = "none";
+    Scanner.current = null;
   });
+  // Lifecycle: stop camera on tab hide / page unload
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && Scanner.stream) Scanner.stopCamera();
+  });
+  window.addEventListener("beforeunload", () => Scanner.stopCamera());
 }
 
+/* ============================================================
+   SAFETY & GLUCOSE
+   ============================================================ */
 const CHECKLIST_ITEMS = [
   ["hydrated","Hydrated before leaving work"],
   ["glucose","Glucose checked and recorded"],
@@ -1349,49 +2051,79 @@ const CHECKLIST_ITEMS = [
   ["feet","Feet checked for blisters or cuts"]
 ];
 function renderChecklist() {
-  const date = isoDate(); const state = Store.data.checklists[date] || {};
+  const date = isoDate();
+  const state = Store.data.checklists[date] || {};
   $("#pre-checklist").innerHTML = CHECKLIST_ITEMS.map(([k,l]) => `
-    <label class="check-row"><input type="checkbox" data-check="${k}" ${state[k]?"checked":""}><span>${esc(l)}</span></label>`).join("");
+    <label class="check-row">
+      <input type="checkbox" data-check="${k}" ${state[k]?"checked":""}>
+      <span>${esc(l)}</span>
+    </label>`).join("");
 }
 function initSafety() {
   $("#pre-checklist").addEventListener("change", e => {
     const key = e.target.dataset.check; if (!key) return;
-    const date = isoDate(); (Store.data.checklists[date] ||= {})[key] = e.target.checked;
-    Store.touch("checklists", date); Store.save();
+    const date = isoDate();
+    (Store.data.checklists[date] ||= {})[key] = e.target.checked;
+    Store.touch("checklists", date);
+    Store.save();
+    haptic(20);
   });
   $("#glucose-add").addEventListener("click", () => {
-    const now = new Date(); const id = uid();
+    const now = new Date();
+    const id = uid();
     Store.data.glucose.push({ id, date:isoDate(now), time:now.toTimeString().slice(0,5), pre:"", post:"", symptoms:"", snack:"", notes:"" });
-    Store.touch("glucose", id); Store.saveNow(); renderGlucoseLog(); renderDashboard();
-    const rows = $$("#glucose-rows tr"); rows[rows.length-1]?.querySelector("input")?.focus();
+    Store.touch("glucose", id);
+    Store.saveNow();
+    renderGlucoseLog();
+    renderDashboard();
+    const rows = $$("#glucose-rows tr");
+    rows[rows.length-1]?.querySelector("input")?.focus();
   });
   $("#glucose-rows").addEventListener("input", e => {
-    const field = e.target.dataset.gfield; const id = e.target.dataset.gid; if (!field || !id) return;
-    const rec = Store.data.glucose.find(g => g.id === id); if (!rec) return;
+    const field = e.target.dataset.gfield;
+    const id = e.target.dataset.gid;
+    if (!field || !id) return;
+    const rec = Store.data.glucose.find(g => g.id === id);
+    if (!rec) return;
     rec[field] = e.target.value;
-    if (field === "pre" || field === "post") { const v = num(e.target.value); e.target.setAttribute("aria-invalid", String(v > 0 && (v < 54 || v > 400))); }
-    Store.touch("glucose", id); Store.save();
+    if (field === "pre" || field === "post") {
+      const v = num(e.target.value);
+      e.target.setAttribute("aria-invalid", String(v > 0 && (v < 54 || v > 400)));
+    }
+    Store.touch("glucose", id);
+    Store.save();
   });
   $("#glucose-rows").addEventListener("change", () => renderDashboard());
   $("#glucose-rows").addEventListener("click", e => {
-    const btn = e.target.closest("[data-remove-glucose]"); if (!btn) return;
+    const btn = e.target.closest("[data-remove-glucose]");
+    if (!btn) return;
     const id = btn.dataset.removeGlucose;
     Store.data.glucose = Store.data.glucose.filter(g => g.id !== id);
-    Store.touch("glucose", id); Store.saveNow(); renderGlucoseLog(); renderDashboard();
+    Store.touch("glucose", id);
+    Store.saveNow();
+    renderGlucoseLog();
+    renderDashboard();
+    haptic(30);
     toast("Reading removed.", "info", 2000);
   });
   $("#glucose-export").addEventListener("click", () => {
     if (!Store.data.glucose.length) return toast("No readings to export.", "warn");
-    const rows = [["Date","Time","Pre-gym","Post-gym","Symptoms","Snack","Notes"], ...Store.data.glucose.map(g => [g.date, g.time, g.pre, g.post, g.symptoms, g.snack, g.notes])];
-    download(`glucose-log-${isoDate()}.csv`, toCSV(rows), "text/csv"); toast("Exported.", "success");
+    const rows = [["Date","Time","Pre-gym","Post-gym","Symptoms","Snack","Notes"],
+      ...Store.data.glucose.map(g => [g.date, g.time, g.pre, g.post, g.symptoms, g.snack, g.notes])];
+    download(`glucose-log-${isoDate()}.csv`, toCSV(rows), "text/csv");
+    toast("Exported.", "success");
   });
 }
 function renderGlucoseLog() {
   const rows = [...Store.data.glucose].sort((a,b) => (b.date+(b.time||"")).localeCompare(a.date+(a.time||"")));
   const tbody = $("#glucose-rows");
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:26px;">No readings yet. Add a row to start tracking.</td></tr>`; return; }
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:26px;">No readings yet. Add a row to start tracking.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = rows.map(g => {
-    const pre = num(g.pre); const low = pre > 0 && pre < 70;
+    const pre = num(g.pre);
+    const low = pre > 0 && pre < 70;
     return `<tr>
       <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--text);padding-left:12px;white-space:nowrap;">${esc(prettyDate(g.date))}</th>
       <td><input type="time" value="${esc(g.time||"")}" data-gfield="time" data-gid="${esc(g.id)}" style="min-width:110px;"></td>
@@ -1405,6 +2137,9 @@ function renderGlucoseLog() {
   }).join("");
 }
 
+/* ============================================================
+   PROGRESS
+   ============================================================ */
 const SCORECARD_FIELDS = [
   ["sessions","Gym sessions (/6)","text"],
   ["steps","Average steps","text"],
@@ -1423,28 +2158,37 @@ function renderScorecard() {
   renderWeightChart();
 }
 function renderWeightChart() {
-  const host = $("#weight-chart"); const asTable = $("#weight-chart-toggle").getAttribute("aria-pressed") === "true";
+  const host = $("#weight-chart");
+  const asTable = $("#weight-chart-toggle").getAttribute("aria-pressed") === "true";
   const points = [1,2,3,4].map(w => ({ label:`Week ${w}`, value:num(Store.data.scorecard[w]?.weight) })).filter(p => p.value > 0);
   if (!points.length) { host.innerHTML = `<div class="chart-empty">Enter a weekly morning weight above to see your trend.</div>`; return; }
   if (asTable) {
-    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Weekly weight</caption><thead><tr><th scope="col">Week</th><th scope="col" class="num">Weight (kg)</th></tr></thead><tbody>${points.map(p => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td></tr>`).join("")}</tbody></table></div>`;
+    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Weekly weight</caption>
+      <thead><tr><th scope="col">Week</th><th scope="col" class="num">Weight (kg)</th></tr></thead>
+      <tbody>${points.map(p => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td></tr>`).join("")}</tbody>
+    </table></div>`;
     return;
   }
   host.innerHTML = buildLineChart(points, { ariaLabel: `Weight trend.` });
 }
 function initProgress() {
   $("#scorecard-body").addEventListener("input", e => {
-    const { week, metric } = e.target.dataset; if (!week || !metric) return;
+    const { week, metric } = e.target.dataset;
+    if (!week || !metric) return;
     (Store.data.scorecard[week] ||= {})[metric] = e.target.value;
-    Store.touch("scorecard", week); Store.save();
+    Store.touch("scorecard", week);
+    Store.save();
   });
-  $("#scorecard-body").addEventListener("change", e => { if (e.target.dataset.metric === "weight") renderWeightChart(); });
+  $("#scorecard-body").addEventListener("change", e => {
+    if (e.target.dataset.metric === "weight") renderWeightChart();
+  });
   const toggle = (btnSel, fn) => {
     const btn = $(btnSel);
     btn.addEventListener("click", () => {
       const on = btn.getAttribute("aria-pressed") === "true";
       btn.setAttribute("aria-pressed", String(!on));
-      btn.textContent = on ? "View as table" : "View as chart"; fn();
+      btn.textContent = on ? "View as table" : "View as chart";
+      fn();
     });
   };
   toggle("#weight-chart-toggle", renderWeightChart);
@@ -1452,50 +2196,98 @@ function initProgress() {
   $("#scorecard-export").addEventListener("click", () => {
     const rows = [["Metric","Week 1","Week 2","Week 3","Week 4"]];
     SCORECARD_FIELDS.forEach(([k,l]) => rows.push([l, ...[1,2,3,4].map(w => Store.data.scorecard[w]?.[k] ?? "")]));
-    download(`scorecard-${isoDate()}.csv`, toCSV(rows), "text/csv"); toast("Exported.", "success");
+    download(`scorecard-${isoDate()}.csv`, toCSV(rows), "text/csv");
+    toast("Exported.", "success");
   });
 }
 
+/* ============================================================
+   SYNC — offline-aware Firebase loader with friendly failures
+   ============================================================ */
 const Sync = (function () {
-  const SDK_VERSION = "10.12.2"; const BASE = `https://www.gstatic.com/firebasejs/${SDK_VERSION}`;
+  const SDK_VERSION = "10.12.2";
+  const BASE = `https://www.gstatic.com/firebasejs/${SDK_VERSION}`;
+  const LOAD_TIMEOUT_MS = 12000;
+
   let app = null, db = null, stateRef = null, unsubscribe = null;
   let pushTimer = null, lastPushJson = "", connecting = false;
   let status = "off", lastSyncedAt = 0, lastError = "";
   let firebaseMods = null;
-  function getConfig() { try { return JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || "null") || { enabled:false }; } catch { return { enabled:false }; } }
+
+  function getConfig() {
+    try { return JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || "null") || { enabled:false }; }
+    catch { return { enabled:false }; }
+  }
   function setConfig(c) { localStorage.setItem(SYNC_CFG_KEY, JSON.stringify(c)); }
+
   function setStatus(s, err) {
     status = s; if (err) lastError = err;
     const pill = $("#sync-pill"), label = $("#sync-label"), detail = $("#sync-status-detail"), text = $("#sync-status-text");
     if (!pill) return;
     pill.dataset.state = s;
-    const labels = { off:"Not configured", connecting:"Connecting…", synced:"Synced", syncing:"Syncing…", error:"Sync error", offline:"Offline" };
-    label.textContent = labels[s] || s; if (text) text.textContent = labels[s] || s;
-    if (detail) { if (s === "synced" && lastSyncedAt) detail.textContent = `Last sync: ${new Date(lastSyncedAt).toLocaleTimeString()}`; else if (s === "error") detail.textContent = lastError || "Check your Firebase config."; else if (s === "off") detail.textContent = "Enable sync below to share data across devices."; else detail.textContent = ""; }
+    const labels = {
+      off: "Not configured",
+      connecting: "Connecting…",
+      synced: "Synced",
+      syncing: "Syncing…",
+      error: "Sync error",
+      offline: "Offline"
+    };
+    label.textContent = labels[s] || s;
+    if (text) text.textContent = labels[s] || s;
+    if (detail) {
+      if (s === "synced" && lastSyncedAt) detail.textContent = `Last sync: ${new Date(lastSyncedAt).toLocaleTimeString()}`;
+      else if (s === "error") detail.textContent = lastError || "Check your Firebase config.";
+      else if (s === "offline") detail.textContent = "You're offline. Changes will sync when connection returns.";
+      else if (s === "off") detail.textContent = "Enable sync below to share data across devices.";
+      else detail.textContent = "";
+    }
   }
+
   function mergeStates(a, b) {
     if (!a) return b; if (!b) return a;
-    const out = structuredClone(a); out._sync = out._sync || {};
+    const out = structuredClone(a);
+    out._sync = out._sync || {};
     const as = a._sync || {}, bs = b._sync || {};
     if ((bs.settings||0) > (as.settings||0)) { out.settings = b.settings; out._sync.settings = bs.settings; }
     if ((bs.meds||0) > (as.meds||0)) { out.meds = b.meds; out._sync.meds = bs.meds; }
+
     for (const key of ["diary","workouts","water","checklists"]) {
-      out[key] = out[key] || {}; out._sync[key] = out._sync[key] || {};
+      out[key] = out[key] || {};
+      out._sync[key] = out._sync[key] || {};
       const lm = as[key] || {}, rm = bs[key] || {};
       const dates = new Set([...Object.keys(a[key]||{}), ...Object.keys(b[key]||{})]);
       for (const date of dates) {
         const lt = lm[date] || 0, rt = rm[date] || 0;
-        if (rt > lt) { if (date in (b[key]||{})) out[key][date] = b[key][date]; else delete out[key][date]; out._sync[key][date] = rt; }
-        else { if (date in (a[key]||{})) out[key][date] = a[key][date]; else delete out[key][date]; out._sync[key][date] = lt; }
+        if (rt > lt) {
+          if (date in (b[key]||{})) out[key][date] = b[key][date];
+          else delete out[key][date];
+          out._sync[key][date] = rt;
+        } else {
+          if (date in (a[key]||{})) out[key][date] = a[key][date];
+          else delete out[key][date];
+          out._sync[key][date] = lt;
+        }
       }
     }
-    out.glucose = []; out._sync.glucose = {};
+
+    out.glucose = [];
+    out._sync.glucose = {};
     const byId = new Map();
     (a.glucose||[]).forEach(g => byId.set(g.id, { rec:g, ts: as.glucose?.[g.id] || 0 }));
-    (b.glucose||[]).forEach(g => { const rt = bs.glucose?.[g.id] || 0; const cur = byId.get(g.id); if (!cur || rt > cur.ts) byId.set(g.id, { rec:g, ts:rt }); });
-    for (const [id, { rec, ts }] of byId) { out.glucose.push(rec); out._sync.glucose[id] = ts; }
+    (b.glucose||[]).forEach(g => {
+      const rt = bs.glucose?.[g.id] || 0;
+      const cur = byId.get(g.id);
+      if (!cur || rt > cur.ts) byId.set(g.id, { rec:g, ts:rt });
+    });
+    for (const [id, { rec, ts }] of byId) {
+      out.glucose.push(rec);
+      out._sync.glucose[id] = ts;
+    }
     out.glucose.sort((x,y) => (x.date+(x.time||"")).localeCompare(y.date+(y.time||"")));
-    out.scorecard = {}; out._sync.scorecard = {};
+
+    out.scorecard = {};
+    out._sync.scorecard = {};
     for (let w = 1; w <= 4; w++) {
       const lt = as.scorecard?.[w] || 0, rt = bs.scorecard?.[w] || 0;
       if (rt > lt) { out.scorecard[w] = b.scorecard?.[w] || {}; out._sync.scorecard[w] = rt; }
@@ -1504,59 +2296,195 @@ const Sync = (function () {
     out._sync.deviceId = a._sync?.deviceId || b._sync?.deviceId || uid();
     return out;
   }
+
   async function loadFirebase() {
     if (firebaseMods) return firebaseMods;
-    const [appMod, dbMod] = await Promise.all([import(`${BASE}/firebase-app.js`), import(`${BASE}/firebase-database.js`)]);
-    firebaseMods = { appMod, dbMod }; return firebaseMods;
+    if (!navigator.onLine) {
+      throw new Error("You're offline — Firebase cannot be loaded. Your data is saved locally.");
+    }
+    let timer;
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("Network timeout")), LOAD_TIMEOUT_MS);
+      });
+      const importPromise = Promise.all([
+        import(`${BASE}/firebase-app.js`),
+        import(`${BASE}/firebase-database.js`)
+      ]);
+      const [appMod, dbMod] = await Promise.race([importPromise, timeoutPromise]);
+      firebaseMods = { appMod, dbMod };
+      return firebaseMods;
+    } catch (err) {
+      // Distinguish offline vs timeout vs genuine failure
+      if (!navigator.onLine) throw new Error("You're offline. Firebase can't be loaded.");
+      if (String(err.message).includes("timeout")) throw new Error("Firebase took too long to load. Check your signal.");
+      throw new Error("Couldn't reach Firebase. Check your connection.");
+    } finally {
+      clearTimeout(timer);
+    }
   }
+
   async function connect() {
     const cfg = getConfig();
     if (!cfg.enabled || !cfg.firebaseConfig || !cfg.roomCode) { setStatus("off"); return false; }
-    if (connecting) return false; connecting = true; setStatus("connecting");
+    if (connecting) return false;
+    if (app) { setStatus("synced"); return true; }
+    if (!navigator.onLine) {
+      setStatus("offline");
+      toast("You're offline. Sync will resume when you're back online.", "warn");
+      return false;
+    }
+
+    connecting = true;
+    setStatus("connecting");
     try {
       const { appMod, dbMod } = await loadFirebase();
-      app = appMod.initializeApp(cfg.firebaseConfig, `clay-${cfg.roomCode}`);
+      const appName = `clay-${cfg.roomCode}`;
+      app = appMod.initializeApp(cfg.firebaseConfig, appName);
       db = dbMod.getDatabase(app);
       stateRef = dbMod.ref(db, `clay-rooms/${cfg.roomCode}/state`);
+
       const snap = await dbMod.get(stateRef);
       const remote = snap.exists() ? snap.val() : null;
       const merged = remote ? mergeStates(Store.data, remote) : Store.data;
-      const mergedJson = JSON.stringify(merged); const remoteJson = remote ? JSON.stringify(remote) : "";
-      if (mergedJson !== JSON.stringify(Store.data)) { Store.data = merged; Store.saveNow(); renderAll(); }
-      if (!remote || mergedJson !== remoteJson) await dbMod.set(stateRef, JSON.parse(mergedJson));
-      lastPushJson = mergedJson; lastSyncedAt = Date.now(); setStatus("synced");
+      const mergedJson = JSON.stringify(merged);
+      const remoteJson = remote ? JSON.stringify(remote) : "";
+
+      if (mergedJson !== JSON.stringify(Store.data)) {
+        Store.data = merged;
+        Store.saveNow();
+        renderAll();
+      }
+      if (!remote || mergedJson !== remoteJson) {
+        await dbMod.set(stateRef, JSON.parse(mergedJson));
+      }
+      lastPushJson = mergedJson;
+      lastSyncedAt = Date.now();
+      setStatus("synced");
+
       unsubscribe = dbMod.onValue(stateRef, s => {
-        const r = s.val(); if (!r) return;
-        const rJson = JSON.stringify(r); if (rJson === lastPushJson) return;
-        const mergedNow = mergeStates(Store.data, r); const nowJson = JSON.stringify(mergedNow);
-        if (nowJson !== JSON.stringify(Store.data)) { Store.data = mergedNow; localStorage.setItem(STORAGE_KEY, nowJson); renderAll(); toast("Updated from another device.", "info", 2600); }
-        lastSyncedAt = Date.now(); setStatus("synced");
-      }, err => { console.error(err); setStatus("error", err.message || String(err)); });
+        const r = s.val();
+        if (!r) return;
+        const rJson = JSON.stringify(r);
+        if (rJson === lastPushJson) return;
+        const mergedNow = mergeStates(Store.data, r);
+        const nowJson = JSON.stringify(mergedNow);
+        if (nowJson !== JSON.stringify(Store.data)) {
+          Store.data = mergedNow;
+          localStorage.setItem(STORAGE_KEY, nowJson);
+          const activeId = document.querySelector(".section.is-active")?.id;
+          const editing = /input|textarea|select/i.test(document.activeElement?.tagName || "");
+          renderAll({
+            skipWorkouts: editing && activeId === "workouts",
+            skipDiary: editing && activeId === "diary",
+            skipScorecard: editing && activeId === "progress"
+          });
+          toast("Updated from another device.", "info", 2600);
+        }
+        lastSyncedAt = Date.now();
+        setStatus("synced");
+      }, err => {
+        console.error("Firebase listener error", err);
+        setStatus("error", err.message || String(err));
+      });
+
       return true;
-    } catch (err) { console.error(err); setStatus("error", err.message || String(err)); return false; }
-    finally { connecting = false; }
+    } catch (err) {
+      console.error("Sync connect failed", err);
+      // Clean up partial state
+      if (app && firebaseMods?.appMod?.deleteApp) {
+        try { firebaseMods.appMod.deleteApp(app); } catch {}
+      }
+      app = null; db = null; stateRef = null;
+      const msg = err.message || String(err);
+      setStatus(navigator.onLine ? "error" : "offline", msg);
+      toast(msg, "warn", 6000);
+      return false;
+    } finally {
+      connecting = false;
+    }
   }
-  function disconnect() { if (unsubscribe) { try { unsubscribe(); } catch {} unsubscribe = null; } stateRef = null; db = null; app = null; setStatus("off"); }
+
+  function disconnect() {
+    if (unsubscribe) { try { unsubscribe(); } catch {} unsubscribe = null; }
+    if (app && firebaseMods?.appMod?.deleteApp) {
+      try { firebaseMods.appMod.deleteApp(app); } catch {}
+    }
+    app = null; db = null; stateRef = null;
+    lastPushJson = "";
+    setStatus("off");
+  }
+
   async function pushNow() {
-    const cfg = getConfig(); if (!cfg.enabled || !stateRef) return;
-    const json = JSON.stringify(Store.data); if (json === lastPushJson) return;
+    const cfg = getConfig();
+    if (!cfg.enabled) return;
+    if (!navigator.onLine) { setStatus("offline"); return; }
+    if (!stateRef) { connect(); return; }
+    const json = JSON.stringify(Store.data);
+    if (json === lastPushJson) return;
     setStatus("syncing");
-    try { const { dbMod } = await loadFirebase(); await dbMod.set(stateRef, Store.data); lastPushJson = json; lastSyncedAt = Date.now(); setStatus("synced"); }
-    catch (err) { setStatus("error", err.message || String(err)); }
+    try {
+      const { dbMod } = await loadFirebase();
+      await dbMod.set(stateRef, Store.data);
+      lastPushJson = json;
+      lastSyncedAt = Date.now();
+      setStatus("synced");
+    } catch (err) {
+      console.error("Push failed", err);
+      setStatus(navigator.onLine ? "error" : "offline", err.message || String(err));
+    }
   }
-  function schedulePush() { const cfg = getConfig(); if (!cfg.enabled || !stateRef) return; clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 1500); }
+
+  function schedulePush() {
+    const cfg = getConfig();
+    if (!cfg.enabled) return;
+    if (!navigator.onLine) { setStatus("offline"); return; }
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushNow, 1500);
+  }
+
   function init() {
-    const cfg = getConfig(); if (cfg.enabled) connect();
-    window.addEventListener("online", () => { if (getConfig().enabled) connect(); });
-    window.addEventListener("offline", () => { if (getConfig().enabled) setStatus("offline"); });
-    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && getConfig().enabled && stateRef) pushNow(); });
+    const cfg = getConfig();
+    if (cfg.enabled) connect();
+
+    window.addEventListener("online", () => {
+      if (getConfig().enabled) {
+        toast("Back online — syncing.", "info", 2200);
+        connect();
+      }
+    });
+    window.addEventListener("offline", () => {
+      if (getConfig().enabled) {
+        setStatus("offline");
+        toast("You're offline. Changes save locally.", "warn", 3500);
+      }
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && getConfig().enabled && navigator.onLine) pushNow();
+    });
     $("#sync-pill").addEventListener("click", () => openDataDialog());
+
+    // Reflect the initial online state
+    if (!navigator.onLine && cfg.enabled) setStatus("offline");
   }
-  const api = { init, connect, disconnect, pushNow, schedulePush, getStatus: () => status, getConfig, setConfig, mergeStates, isEnabled: () => !!getConfig().enabled };
-  window.Sync = api; return api;
+
+  const api = {
+    init, connect, disconnect, pushNow, schedulePush,
+    getStatus: () => status,
+    getConfig, setConfig, mergeStates,
+    isEnabled: () => !!getConfig().enabled
+  };
+  window.Sync = api;
+  return api;
 })();
 
-function openDataDialog() { const dlg = $("#data-dialog"); if (!dlg.open) dlg.showModal(); }
+/* ============================================================
+   DATA DIALOG
+   ============================================================ */
+function openDataDialog() {
+  const dlg = $("#data-dialog");
+  if (!dlg.open) dlg.showModal();
+}
 function initDialog() {
   const dlg = $("#data-dialog");
   const syncUI = () => {
@@ -1565,92 +2493,178 @@ function initDialog() {
     $("#set-protein").value = settings().proteinTarget;
     $("#set-steps").value = settings().stepTarget;
     $("#set-sessions").value = settings().sessionsTarget;
-    if (c.firebaseConfig) { try { $("#sync-config").value = JSON.stringify(c.firebaseConfig, null, 2); } catch { $("#sync-config").value = ""; } }
+    if (c.firebaseConfig) {
+      try { $("#sync-config").value = JSON.stringify(c.firebaseConfig, null, 2); }
+      catch { $("#sync-config").value = ""; }
+    }
     $("#sync-room").value = c.roomCode || "";
     $("#sync-status-text").textContent = Sync.getStatus();
   };
+
   $("#open-data").addEventListener("click", () => { syncUI(); openDataDialog(); });
   $$("[data-close-dialog]").forEach(b => b.addEventListener("click", () => dlg.close()));
+
   const bindSetting = (sel, key, min, max) => {
     $(sel).addEventListener("change", e => {
-      const v = clamp(num(e.target.value), min, max); settings()[key] = v; e.target.value = v;
-      Store.touch("settings"); Store.save(); renderDashboard(); renderDiary();
+      const v = clamp(num(e.target.value), min, max);
+      settings()[key] = v;
+      e.target.value = v;
+      Store.touch("settings");
+      Store.save();
+      renderDashboard();
+      renderDiary();
     });
   };
   bindSetting("#set-kcal","kcalTarget",1000,5000);
   bindSetting("#set-protein","proteinTarget",40,300);
   bindSetting("#set-steps","stepTarget",1000,30000);
   bindSetting("#set-sessions","sessionsTarget",1,7);
+
   $("#sync-room-generate").addEventListener("click", () => {
-    const bytes = new Uint8Array(16); crypto.getRandomValues(bytes);
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
     $("#sync-room").value = Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
+    haptic(20);
   });
   $("#sync-room-copy").addEventListener("click", async () => {
-    const code = $("#sync-room").value.trim(); if (!code) return toast("Generate a room code first.", "warn");
-    try { await navigator.clipboard.writeText(code); toast("Copied.", "success"); }
+    const code = $("#sync-room").value.trim();
+    if (!code) return toast("Generate a room code first.", "warn");
+    try { await navigator.clipboard.writeText(code); toast("Copied.", "success"); haptic(20); }
     catch { toast("Could not copy.", "warn"); }
   });
   $("#sync-connect").addEventListener("click", async () => {
-    const raw = $("#sync-config").value.trim(); const room = $("#sync-room").value.trim();
+    const raw = $("#sync-config").value.trim();
+    const room = $("#sync-room").value.trim();
     if (!raw) return toast("Paste your Firebase config first.", "warn");
     if (!room) return toast("Generate a room code first.", "warn");
-    let parsed; try { parsed = JSON.parse(raw); } catch { return toast("Invalid JSON.", "error"); }
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch { return toast("Invalid JSON.", "error"); }
     if (!parsed.databaseURL) return toast("Missing databaseURL.", "error");
     Sync.setConfig({ enabled:true, firebaseConfig:parsed, roomCode:room });
-    const ok = await Sync.connect(); if (ok) toast("Sync connected.", "success");
+    const ok = await Sync.connect();
+    if (ok) { toast("Sync connected.", "success"); haptic(30); }
     syncUI();
   });
-  $("#sync-now").addEventListener("click", async () => { if (!Sync.isEnabled()) return toast("Enable sync first.", "warn"); await Sync.pushNow(); toast("Sync requested.", "info", 1500); });
-  $("#sync-disconnect").addEventListener("click", () => {
-    if (!confirm("Disconnect sync on this device?")) return;
-    Sync.setConfig({ enabled:false }); Sync.disconnect(); toast("Sync disabled.", "info"); syncUI();
+  $("#sync-now").addEventListener("click", async () => {
+    if (!Sync.isEnabled()) return toast("Enable sync first.", "warn");
+    await Sync.pushNow();
+    toast("Sync requested.", "info", 1500);
   });
-  $("#export-json").addEventListener("click", () => { download(`clay-health-backup-${isoDate()}.json`, JSON.stringify(Store.data, null, 2), "application/json"); toast("Backup downloaded.", "success"); });
+  $("#sync-disconnect").addEventListener("click", () => {
+    if (!confirm("Disconnect sync on this device? Your local data stays.")) return;
+    Sync.setConfig({ enabled:false });
+    Sync.disconnect();
+    toast("Sync disabled.", "info");
+    syncUI();
+  });
+  $("#export-json").addEventListener("click", () => {
+    download(`clay-health-backup-${isoDate()}.json`, JSON.stringify(Store.data, null, 2), "application/json");
+    toast("Backup downloaded.", "success");
+  });
   $("#import-json").addEventListener("click", () => $("#import-file").click());
   $("#import-file").addEventListener("change", async e => {
-    const file = e.target.files?.[0]; if (!file) return;
-    try { const parsed = JSON.parse(await file.text()); Store.data = Store.migrate(parsed); Store.saveNow(); renderAll(); toast("Imported.", "success"); dlg.close(); }
-    catch { toast("Invalid file.", "error"); }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      Store.data = Store.migrate(parsed);
+      Store.saveNow();
+      renderAll();
+      toast("Imported.", "success");
+      dlg.close();
+    } catch { toast("Invalid file.", "error"); }
     finally { e.target.value = ""; }
   });
-  $("#reset-all").addEventListener("click", () => { if (!confirm("Erase all saved data?")) return; Store.reset(); renderAll(); toast("All data erased.", "warn"); dlg.close(); });
+  $("#reset-all").addEventListener("click", () => {
+    const syncOn = Sync.isEnabled();
+    const msg = syncOn
+      ? "Erase all saved data? This will also wipe the synced data on your other devices."
+      : "Erase all saved data?";
+    if (!confirm(msg)) return;
+    if (syncOn) Sync.disconnect();
+    Store.reset();
+    renderAll();
+    haptic([60, 40, 60]);
+    toast("All data erased.", "warn");
+    dlg.close();
+  });
 }
 
+/* ============================================================
+   DASHBOARD GLUCOSE
+   ============================================================ */
 function initDashboard() {
   const input = $("#dash-glucose");
   const save = () => {
     const v = num(input.value);
     if (!v) return toast("Enter a glucose value.", "warn");
     if (v < 20 || v > 600) return toast("Value out of range.", "error");
-    const now = new Date(); const id = uid();
-    Store.data.glucose.push({ id, date:isoDate(now), time:now.toTimeString().slice(0,5), pre:String(v), post:"", symptoms:"", snack:"", notes:"Logged from dashboard" });
-    Store.touch("glucose", id); Store.saveNow(); input.value = "";
-    renderDashboard(); renderGlucoseLog();
-    if (v < 70) toast("Low — treat with 15–20 g fast glucose. Do NOT train.", "error", 9000);
-    else toast(`Saved: ${v} mg/dL.`, "success");
+    const now = new Date();
+    const id = uid();
+    Store.data.glucose.push({
+      id, date:isoDate(now), time:now.toTimeString().slice(0,5),
+      pre:String(v), post:"", symptoms:"", snack:"", notes:"Logged from dashboard"
+    });
+    Store.touch("glucose", id);
+    Store.saveNow();
+    input.value = "";
+    renderDashboard();
+    renderGlucoseLog();
+    if (v < 70) {
+      haptic([100, 60, 100, 60, 100]);
+      toast("Low — treat with 15–20 g fast glucose. Do NOT train.", "error", 9000);
+    } else {
+      haptic(40);
+      toast(`Saved: ${v} mg/dL.`, "success");
+    }
   };
   $("#dash-save-glucose").addEventListener("click", save);
-  input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); save(); } });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); save(); }
+  });
 }
 
-function renderAll() {
-  renderDashboard(); renderWorkouts(); renderMealDay(); renderDiary();
-  renderChecklist(); renderGlucoseLog(); renderScorecard();
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+function renderAll(opts = {}) {
+  renderDashboard();
+  if (!opts.skipWorkouts) renderWorkouts();
+  renderMealDay();
+  if (!opts.skipDiary) renderDiary();
+  renderChecklist();
+  renderGlucoseLog();
+  if (!opts.skipScorecard) renderScorecard();
 }
+
+/* ============================================================
+   CLOCK
+   ============================================================ */
 function initClock() {
   const el = $("#clock");
   const tick = () => { el.textContent = new Date().toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" }); };
-  tick(); setInterval(tick, 30000);
+  tick();
+  setInterval(tick, 30000);
 }
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
 function initKeyboardShortcuts() {
   document.addEventListener("keydown", e => {
     if (e.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) {
-      e.preventDefault(); showSection("scanner"); setTimeout(() => $("#barcode-input").focus(), 80);
+      e.preventDefault();
+      showSection("scanner");
+      setTimeout(() => $("#barcode-input").focus(), 80);
     }
     if (e.key === "Escape") RestTimer.stop();
   });
 }
 
+/* ============================================================
+   INIT
+   ============================================================ */
 function init() {
   Store.load();
   initTheme();
@@ -1666,28 +2680,85 @@ function init() {
   initProgress();
   initClock();
   initKeyboardShortcuts();
+
   const plan = DAY_PLAN[new Date().getDay()];
   if (plan.key && WORKOUTS[plan.key]) $("#workout-selector").value = plan.key;
+
   renderAll();
   Sync.init();
+
   const initial = location.hash.slice(1);
   showSection(SECTIONS.includes(initial) ? initial : "dashboard", { focus:false, updateHash:false });
+
   let currentDay = isoDate();
-  setInterval(() => { const now = isoDate(); if (now !== currentDay) { currentDay = now; renderAll(); toast("New day — refreshed.", "info"); } }, 60000);
+  setInterval(() => {
+    const now = isoDate();
+    if (now !== currentDay) {
+      currentDay = now;
+      diaryDate = now;
+      renderAll();
+      toast("New day — refreshed.", "info");
+    }
+  }, 60000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
 
 /* ============================================================
-   SERVICE WORKER REGISTRATION
-   ============================================================ */
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch((err) => {
-      console.warn("SW registration failed:", err);
-    });
+   SERVICE WORKER — inline fallback + external sw.js
+   ============================================================
+   Tries to register ./sw.js first. If it 404s (e.g. file not
+   deployed), falls back to a minimal inline SW via Blob so the
+   app still gets basic offline caching in limited scope.
+*/
+(function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") return;
+
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+      console.info("[SW] Registered ./sw.js", reg.scope);
+    } catch (err) {
+      console.warn("[SW] ./sw.js failed, using inline fallback.", err);
+      try {
+        const inlineSW = `
+          const CACHE = "clay-inline-v1";
+          self.addEventListener("install", (e) => {
+            e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "./index.html"]).catch(()=>{})));
+            self.skipWaiting();
+          });
+          self.addEventListener("activate", (e) => {
+            e.waitUntil(caches.keys().then(keys =>
+              Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+            ));
+            self.clients.claim();
+          });
+          self.addEventListener("fetch", (e) => {
+            const req = e.request;
+            if (req.method !== "GET") return;
+            if (req.url.includes("openfoodfacts") || req.url.includes("firebase") || req.url.includes("gstatic")) {
+              return e.respondWith(fetch(req).catch(() => caches.match(req)));
+            }
+            e.respondWith(
+              caches.match(req).then(hit => hit || fetch(req).then(res => {
+                const copy = res.clone();
+                caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+                return res;
+              }).catch(() => caches.match("./index.html")))
+            );
+          });
+        `;
+        const blob = new Blob([inlineSW], { type: "application/javascript" });
+        const url = URL.createObjectURL(blob);
+        await navigator.serviceWorker.register(url);
+        console.info("[SW] Inline fallback registered (limited scope).");
+      } catch (err2) {
+        console.warn("[SW] Inline fallback also failed.", err2);
+      }
+    }
   });
-}
+})();
 </script>
 </body>
 </html>
