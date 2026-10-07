@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#4f46e5">
+<meta name="description" content="Personal diabetes-aware training, nutrition and glucose tracking dashboard with cross-device sync.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clay Health">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>Clay's Health Hub</title>
+<style>
+/* ============================================================
+   1. DESIGN TOKENS
+   ============================================================ */
+:root{
+  color-scheme: light;
+  --bg:#f5f7fb; --surface:#ffffff; --surface-2:#f8fafc; --surface-3:#eef2f7;
+  --text:#0f172a; --text-2:#334155; --muted:#5b6b83;
+  --border:#e2e8f0; --border-strong:#cbd5e1;
+  --primary:#4f46e5; --primary-hover:#4338ca; --primary-soft:#eef2ff; --on-primary:#fff;
+  --danger:#c02626; --danger-soft:#fef2f2; --danger-border:#fecaca;
+  --success:#047857; --success-soft:#ecfdf5; --success-border:#a7f3d0;
+  --warn:#b45309; --warn-soft:#fffbeb; --warn-border:#fde68a;
+  --info-soft:#eff6ff; --info-border:#bfdbfe;
+  --radius:14px; --radius-sm:9px; --radius-pill:999px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.06);
+  --shadow-2:0 1px 2px rgba(15,23,42,.05), 0 10px 28px -14px rgba(15,23,42,.22);
+  --shadow-3:0 24px 60px -20px rgba(15,23,42,.35);
+  --ring:0 0 0 3px rgba(79,70,229,.35);
+  --font:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --sidebar-w:264px;
+  --tap:44px;
+}
+[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#080d19; --surface:#111a2c; --surface-2:#161f34; --surface-3:#1d2740;
+  --text:#e9eefb; --text-2:#c3cee3; --muted:#93a2bd;
+  --border:#243049; --border-strong:#33415e;
+  --primary:#8b93f8; --primary-hover:#a5abfa; --primary-soft:#1b2340; --on-primary:#0a1020;
+  --danger:#f98a8a; --danger-soft:#2b1418; --danger-border:#5c2a2f;
+  --success:#4ade9f; --success-soft:#0d2620; --success-border:#1d5344;
+  --warn:#fbc55b; --warn-soft:#2a2110; --warn-border:#5a4a1a;
+  --info-soft:#141d33; --info-border:#2b3c5e;
+  --shadow-1:0 1px 2px rgba(0,0,0,.5);
+  --shadow-2:0 1px 2px rgba(0,0,0,.5), 0 12px 34px -16px rgba(0,0,0,.9);
+  --shadow-3:0 28px 70px -24px rgba(0,0,0,.95);
+  --ring:0 0 0 3px rgba(139,147,248,.4);
+}
+
+/* ============================================================
+   2. RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; font-family:var(--font); background:var(--bg); color:var(--text);
+  font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;
+}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0;}
+ul,ol{padding-left:1.15rem;}
+img{max-width:100%;display:block;}
+button,input,select,textarea{font:inherit;color:inherit;}
+a{color:var(--primary);}
+button{touch-action:manipulation;}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:6px;}
+::selection{background:var(--primary);color:var(--on-primary);}
+
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;}
+.skip-link{
+  position:absolute;left:12px;top:-100px;z-index:999;
+  background:var(--primary);color:var(--on-primary);padding:10px 18px;
+  border-radius:var(--radius-sm);font-weight:700;text-decoration:none;transition:top .18s ease;
+}
+.skip-link:focus{top:12px;}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+}
+
+/* ============================================================
+   3. APP SHELL
+   ============================================================ */
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden;}
+.sidebar{
+  width:var(--sidebar-w);flex:0 0 var(--sidebar-w);
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:20px 14px;gap:6px;
+  overflow-y:auto;overscroll-behavior:contain;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 20px;}
+.brand-mark{
+  width:34px;height:34px;flex:0 0 34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),#8b5cf6);
+  display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;
+  box-shadow:var(--shadow-1);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.15;}
+.brand-name{font-weight:800;font-size:16px;letter-spacing:-.3px;}
+.brand-sub{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+.nav{display:flex;flex-direction:column;gap:3px;}
+.nav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:14px 12px 6px;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:10px 12px;border:0;background:transparent;color:var(--text-2);
+  border-radius:var(--radius-sm);font-weight:600;font-size:14px;cursor:pointer;
+  transition:background .15s ease,color .15s ease;min-height:40px;
+}
+.nav-item .ico{font-size:16px;line-height:1;width:20px;text-align:center;flex:0 0 20px;}
+.nav-item:hover{background:var(--surface-3);color:var(--text);}
+.nav-item[aria-current="page"]{background:var(--primary-soft);color:var(--primary);font-weight:700;}
+.nav-item .badge{margin-left:auto;font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--radius-pill);background:var(--danger);color:#fff;}
+.sidebar-foot{margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:8px;}
+.main{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
+.main-inner{max-width:1140px;margin:0 auto;padding:26px 28px 80px;}
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
+  padding:10px 0 16px;background:linear-gradient(var(--bg) 72%,transparent);
+}
+.topbar-spacer{flex:1;}
+.page-head{margin-bottom:22px;}
+.page-head h1{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.2;}
+.page-head p{color:var(--muted);font-size:14px;margin-top:5px;}
+
+/* ============================================================
+   4. COMPONENTS
+   ============================================================ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-1);}
+.card + .card{margin-top:18px;}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.card-head h2,.card-head h3{font-size:12px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--primary);}
+.card-head .spacer{flex:1;}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+.grid-2{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-1);}
+.stat-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.stat-value{font-size:26px;font-weight:800;letter-spacing:-.7px;margin-top:4px;line-height:1.1;}
+.stat-value small{font-size:14px;font-weight:600;color:var(--muted);letter-spacing:0;}
+.stat-hint{font-size:12.5px;color:var(--muted);margin-top:4px;}
+
+.alert{display:flex;gap:12px;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:14px;line-height:1.55;margin-bottom:18px;}
+.alert .alert-ico{font-size:17px;line-height:1.35;flex:0 0 auto;}
+.alert strong{font-weight:800;}
+.alert-danger{background:var(--danger-soft);border-color:var(--danger-border);color:var(--danger);}
+.alert-success{background:var(--success-soft);border-color:var(--success-border);color:var(--success);}
+.alert-warn{background:var(--warn-soft);border-color:var(--warn-border);color:var(--warn);}
+.alert-info{background:var(--info-soft);border-color:var(--info-border);color:var(--text-2);}
+.alert ul,.alert ol{margin:6px 0 0;padding-left:1.2rem;}
+.alert li{margin:2px 0;}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 16px;border-radius:var(--radius-sm);border:1px solid transparent;
+  background:var(--primary);color:var(--on-primary);
+  font-weight:700;font-size:13.5px;cursor:pointer;
+  transition:background .15s ease,transform .08s ease,box-shadow .15s ease;
+  white-space:nowrap;min-height:38px;
+}
+.btn:hover{background:var(--primary-hover);}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-ghost{background:transparent;color:var(--text-2);border-color:var(--border-strong);}
+.btn-ghost:hover{background:var(--surface-3);color:var(--text);}
+.btn-soft{background:var(--primary-soft);color:var(--primary);border-color:transparent;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{filter:brightness(.92);}
+.btn-sm{padding:6px 11px;font-size:12.5px;min-height:32px;}
+.btn-block{width:100%;}
+.btn-row{display:flex;flex-wrap:wrap;gap:9px;}
+
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:12.5px;font-weight:700;color:var(--muted);}
+.field .hint{font-size:12px;color:var(--muted);font-weight:500;}
+input[type="text"],input[type="number"],input[type="date"],input[type="time"],input[type="search"],select,textarea{
+  width:100%;padding:9px 11px;background:var(--surface-2);
+  border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  font-size:14px;min-height:40px;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+textarea{min-height:90px;resize:vertical;font-family:var(--mono);font-size:12.5px;line-height:1.5;}
+input:hover,select:hover,textarea:hover{border-color:var(--muted);}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:var(--ring);background:var(--surface);}
+input[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 3px rgba(192,38,38,.18);}
+input[type="checkbox"],input[type="radio"]{width:20px;height:20px;accent-color:var(--primary);flex:0 0 20px;cursor:pointer;}
+select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235b6b83' d='M1.4 0 6 4.6 10.6 0 12 1.4 6 7.4 0 1.4z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;
+}
+.check-row{display:flex;align-items:flex-start;gap:11px;padding:10px 4px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;line-height:1.45;min-height:var(--tap);}
+.check-row:hover{background:var(--surface-2);}
+.check-row span{flex:1;}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-sm);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+caption{text-align:left;font-size:12.5px;color:var(--muted);padding-bottom:8px;}
+th{text-align:left;padding:9px 12px;background:var(--surface-2);color:var(--muted);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+
+.tag{display:inline-block;padding:2px 9px;border-radius:var(--radius-pill);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;border:1px solid transparent;white-space:nowrap;}
+.tag-push{background:var(--primary-soft);color:var(--primary);}
+.tag-pull{background:var(--success-soft);color:var(--success);}
+.tag-legs{background:var(--warn-soft);color:var(--warn);}
+.tag-rest{background:var(--surface-3);color:var(--muted);}
+.tag-effort{background:var(--surface-3);color:var(--text-2);}
+
+.bar{height:8px;background:var(--surface-3);border-radius:var(--radius-pill);overflow:hidden;}
+.bar > span{display:block;height:100%;background:var(--primary);border-radius:inherit;transition:width .4s ease;}
+.bar.success > span{background:var(--success);}
+.bar.warn > span{background:var(--warn);}
+
+.segmented{display:inline-flex;background:var(--surface-3);border-radius:var(--radius-pill);padding:3px;gap:2px;}
+.segmented button{border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:var(--radius-pill);font-size:13px;font-weight:700;cursor:pointer;transition:.15s;min-height:34px;}
+.segmented button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:var(--shadow-1);}
+
+/* ============================================================
+   5. SECTION TRANSITIONS
+   ============================================================ */
+.section{display:none;}
+.section.is-active{display:block;animation:fadeUp .28s cubic-bezier(.2,.7,.3,1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ============================================================
+   6. WORKOUTS
+   ============================================================ */
+.exercise{border-bottom:1px solid var(--border);}
+.exercise:last-child{border-bottom:none;}
+.ex-head{display:flex;align-items:center;gap:14px;padding:12px 2px;}
+.ex-head .ex-info{flex:1;min-width:0;}
+.ex-name{font-weight:700;font-size:14.5px;}
+.ex-meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.ex-body{padding:0 2px 16px;}
+.set-grid{display:flex;flex-direction:column;gap:8px;}
+.set-row{display:grid;grid-template-columns:56px 1fr 1fr auto;gap:9px;align-items:center;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);}
+.set-row.is-done{background:var(--success-soft);border-color:var(--success-border);}
+.set-row .set-no{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.set-row .unit-input{display:flex;align-items:center;gap:6px;}
+.set-row .unit-input input{padding:7px 8px;font-size:14px;text-align:center;min-height:38px;}
+.set-row .unit-input .u{font-size:11.5px;color:var(--muted);font-weight:700;}
+
+.rest-timer{position:fixed;right:20px;bottom:20px;z-index:60;display:none;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-pill);padding:10px 12px 10px 18px;box-shadow:var(--shadow-3);}
+.rest-timer.is-open{display:flex;}
+.rest-timer .time{font-family:var(--mono);font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;min-width:62px;text-align:center;}
+.rest-timer.is-finished .time{color:var(--success);}
+.rest-timer.is-finished{animation:pulse 1s ease 3;}
+@keyframes pulse{50%{transform:scale(1.04);}}
+
+/* ============================================================
+   7. SCANNER
+   ============================================================ */
+.scanner-view{position:relative;width:100%;aspect-ratio:16/10;max-height:340px;background:#0b1020;border-radius:var(--radius);overflow:hidden;display:grid;place-items:center;border:1px solid var(--border);}
+.scanner-view video{width:100%;height:100%;object-fit:cover;display:block;}
+.scanner-placeholder{text-align:center;color:#94a3b8;padding:24px;font-size:14px;}
+.scanner-placeholder .big{font-size:38px;display:block;margin-bottom:10px;}
+.scan-frame{position:absolute;inset:16% 12%;border-radius:12px;box-shadow:0 0 0 100vmax rgba(6,10,20,.55);pointer-events:none;}
+.scan-frame::before,.scan-frame::after{content:"";position:absolute;width:26px;height:26px;border:3px solid var(--success);}
+.scan-frame::before{top:-2px;left:-2px;border-right:0;border-bottom:0;border-radius:8px 0 0 0;}
+.scan-frame::after{bottom:-2px;right:-2px;border-left:0;border-top:0;border-radius:0 0 8px 0;}
+.scan-laser{position:absolute;left:6%;right:6%;height:2px;background:var(--success);box-shadow:0 0 14px var(--success);border-radius:2px;animation:laser 2.2s ease-in-out infinite;}
+@keyframes laser{0%,100%{top:20%;}50%{top:80%;}}
+
+/* ============================================================
+   8. TOASTS / DIALOG
+   ============================================================ */
+.toasts{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:min(360px,calc(100vw - 32px));pointer-events:none;}
+.toast{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--shadow-3);font-size:13.5px;font-weight:600;pointer-events:auto;animation:toastIn .25s cubic-bezier(.2,.8,.3,1);}
+.toast.is-out{animation:toastOut .2s ease forwards;}
+.toast-success{border-left-color:var(--success);}
+.toast-error{border-left-color:var(--danger);}
+.toast-warn{border-left-color:var(--warn);}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:none;}}
+@keyframes toastOut{to{opacity:0;transform:translateX(24px);}}
+
+dialog{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);padding:0;max-width:min(640px,calc(100vw - 24px));width:100%;max-height:90vh;overflow:auto;box-shadow:var(--shadow-3);}
+dialog::backdrop{background:rgba(8,12,24,.6);backdrop-filter:blur(3px);}
+.dialog-head{padding:18px 20px 0;}
+.dialog-head h2{font-size:17px;font-weight:800;}
+.dialog-body{padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px;}
+.dialog-foot{display:flex;gap:9px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--surface-2);position:sticky;bottom:0;}
+fieldset{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;gap:12px;}
+legend{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--primary);padding:0 6px;}
+details{font-size:13.5px;}
+details summary{cursor:pointer;font-weight:700;padding:6px 0;}
+details ol{margin:8px 0 0;padding-left:1.4rem;line-height:1.7;}
+details ol li{margin:2px 0;}
+details code{font-family:var(--mono);font-size:12px;background:var(--surface-3);padding:1px 5px;border-radius:4px;}
+.input-group{display:flex;gap:6px;}
+.input-group input{flex:1;}
+
+/* ============================================================
+   9. SYNC STATUS PILL
+   ============================================================ */
+.sync-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 10px;border-radius:var(--radius-pill);background:var(--surface-2);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);cursor:pointer;min-height:32px;}
+.sync-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 8px;}
+.sync-pill[data-state="synced"] .dot{background:var(--success);box-shadow:0 0 0 3px rgba(4,120,87,.15);}
+.sync-pill[data-state="syncing"] .dot{background:var(--warn);animation:blink 1s infinite;}
+.sync-pill[data-state="error"] .dot{background:var(--danger);}
+.sync-pill[data-state="offline"] .dot{background:var(--muted);}
+.sync-pill[data-state="off"] {display:none;}
+@keyframes blink{50%{opacity:.35;}}
+
+/* ============================================================
+   10. CHART
+   ============================================================ */
+.chart{width:100%;height:auto;display:block;overflow:visible;}
+.chart .grid-line{stroke:var(--border);stroke-width:1;}
+.chart .axis-text{fill:var(--muted);font-size:11px;font-weight:600;font-family:var(--font);}
+.chart .series{fill:none;stroke:var(--primary);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
+.chart .area{fill:var(--primary);opacity:.1;}
+.chart .dot{fill:var(--surface);stroke:var(--primary);stroke-width:2.5;}
+.chart .target-line{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 5;}
+.chart-empty{padding:34px 12px;text-align:center;color:var(--muted);font-size:13.5px;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);}
+
+/* ============================================================
+   11. RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%;flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;padding:8px 10px;border-right:0;border-bottom:1px solid var(--border);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
+  .sidebar::-webkit-scrollbar{display:none;}
+  .brand{padding:0 10px 0 2px;flex:0 0 auto;}
+  .brand-text{display:none;}
+  .nav{flex-direction:row;gap:5px;flex:1;}
+  .nav-label{display:none;}
+  .nav-item{padding:8px 13px;font-size:13px;white-space:nowrap;flex:0 0 auto;min-height:40px;}
+  .nav-item .ico{width:auto;flex:0 0 auto;}
+  .nav-item .label-full{display:none;}
+  .sidebar-foot{margin-top:0;padding-top:0;flex-direction:row;flex:0 0 auto;}
+  .sidebar-foot .btn span.label{display:none;}
+  .main-inner{padding:14px 14px 90px;}
+  .page-head h1{font-size:22px;}
+  .rest-timer{right:12px;bottom:12px;left:12px;justify-content:space-between;}
+  input,select,textarea{font-size:16px;} /* prevents iOS auto-zoom */
+  .set-row{grid-template-columns:46px 1fr 1fr auto;gap:6px;padding:7px 8px;}
+  .set-row .set-no{font-size:11px;}
+  .sync-pill{padding:5px 10px;}
+  .sync-pill .label{display:none;}
+}
+@media (max-width: 520px){
+  .grid,.grid-2{grid-template-columns:1fr;}
+  .card{padding:16px;}
+  .stat-value{font-size:22px;}
+  .btn-row .btn{flex:1 1 auto;}
+}
+
+/* Safe-area insets for iPhone */
+@supports (padding: max(0px)) {
+  .main-inner{padding-left:max(14px, env(safe-area-inset-left));padding-right:max(14px, env(safe-area-inset-right));padding-bottom:max(90px, env(safe-area-inset-bottom));}
+  .rest-timer{bottom:max(12px, env(safe-area-inset-bottom));}
+  .toasts{top:max(16px, env(safe-area-inset-top));}
+}
+
+/* ============================================================
+   12. PRINT
+   ============================================================ */
+@media print{
+  :root{--bg:#fff;--surface:#fff;--text:#000;--muted:#444;--border:#bbb;}
+  .sidebar,.topbar,.rest-timer,.toasts,.no-print,.sync-pill{display:none!important;}
+  .app{display:block;height:auto;overflow:visible;}
+  .main{overflow:visible;height:auto;}
+  .main-inner{max-width:none;padding:0;}
+  .section{display:none;}
+  .section.is-active{display:block;animation:none;}
+  .card,.stat{box-shadow:none;border:1px solid #bbb;break-inside:avoid;}
+  input,select{border:none;border-bottom:1px solid #bbb;background:transparent;}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">CH</div>
+      <div class="brand-text">
+        <span class="brand-name">Clay Health</span>
+        <span class="brand-sub">Recomp OS</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="main-nav" aria-label="Main navigation">
+      <span class="nav-label">Track</span>
+      <button class="nav-item" type="button" data-section="dashboard" aria-current="page">
+        <span class="ico" aria-hidden="true">📊</span><span class="label-full">Dashboard</span>
+      </button>
+      <button class="nav-item" type="button" data-section="workouts">
+        <span class="ico" aria-hidden="true">💪</span><span class="label-full">Workouts</span>
+      </button>
+      <button class="nav-item" type="button" data-section="meals">
+        <span class="ico" aria-hidden="true">🥗</span><span class="label-full">Meal Plan</span>
+      </button>
+      <button class="nav-item" type="button" data-section="diary">
+        <span class="ico" aria-hidden="true">📔</span><span class="label-full">Food Diary</span>
+        <span class="badge" id="diary-badge" hidden></span>
+      </button>
+      <button class="nav-item" type="button" data-section="scanner">
+        <span class="ico" aria-hidden="true">📸</span><span class="label-full">Scanner</span>
+      </button>
+      <span class="nav-label">Review</span>
+      <button class="nav-item" type="button" data-section="safety">
+        <span class="ico" aria-hidden="true">🩺</span><span class="label-full">Safety &amp; Glucose</span>
+      </button>
+      <button class="nav-item" type="button" data-section="progress">
+        <span class="ico" aria-hidden="true">📈</span><span class="label-full">Scorecard</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="btn btn-ghost btn-sm" type="button" id="theme-toggle" aria-label="Switch to dark theme">
+        <span aria-hidden="true" id="theme-ico">🌙</span><span class="label">Theme</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" type="button" id="open-data" aria-label="Open data and settings">
+        <span aria-hidden="true">⚙️</span><span class="label">Data</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="main-inner">
+
+      <div class="topbar no-print">
+        <div class="segmented" role="group" aria-label="Quick actions">
+          <button type="button" id="today-btn" aria-pressed="true">Today</button>
+          <button type="button" id="print-btn">Print</button>
+        </div>
+        <div class="topbar-spacer"></div>
+        <button class="sync-pill" type="button" id="sync-pill" data-state="off" aria-label="Sync status">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="label" id="sync-label">Not configured</span>
+        </button>
+        <span id="clock" class="stat-hint" aria-hidden="true"></span>
+      </div>
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="section is-active" id="dashboard" aria-labelledby="dashboard-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="dashboard-h">Welcome back, Clay</h1>
+          <p>30-day diabetes-aware body recomposition · ~83 kg · 182 cm</p>
+        </div>
+
+        <div class="alert alert-danger" role="note">
+          <span class="alert-ico" aria-hidden="true">⚕️</span>
+          <div>
+            <strong>Not medical advice.</strong> This is a personal tracking tool. Always follow your prescriber's instructions and confirm any change with your clinician.
+            <ul>
+              <li><strong>SGLT2 warning:</strong> avoid prolonged fasting, dehydration and ketogenic diets. Seek urgent care for persistent nausea, abdominal pain, or unusual breathing.</li>
+              <li><strong>Hypo (&lt;70 mg/dL):</strong> stop training, take 15–20 g fast glucose, recheck in 15 min. Never train through a low.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-bottom:18px;">
+          <div class="stat">
+            <div class="stat-label">Today's session</div>
+            <div class="stat-value" id="dash-today" style="font-size:20px;">—</div>
+            <div class="stat-hint" id="dash-today-hint">Gym at ~1:30 PM after work</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Streak</div>
+            <div class="stat-value"><span id="dash-streak">0</span> <small>days logged</small></div>
+            <div class="stat-hint">Consecutive days with any entry</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">This week</div>
+            <div class="stat-value"><span id="dash-sessions">0</span><small id="dash-sessions-target">/6 sessions</small></div>
+            <div class="bar" style="margin-top:9px;"><span id="dash-sessions-bar" style="width:0%"></span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Last pre-gym glucose</div>
+            <div class="stat-value" id="dash-glucose-value">—</div>
+            <div class="stat-hint" id="dash-glucose-hint">No readings logged yet</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h2>Pre-workout check</h2></div>
+            <div class="field">
+              <label for="dash-glucose">Glucose reading (mg/dL)</label>
+              <input type="number" id="dash-glucose" inputmode="numeric" min="20" max="600" placeholder="e.g. 110" aria-describedby="dash-glucose-help">
+              <p class="hint" id="dash-glucose-help">If below 70, treat with 15–20 g fast glucose and do not train.</p>
+            </div>
+            <div class="btn-row" style="margin-top:12px;">
+              <button class="btn" type="button" id="dash-save-glucose">Save reading</button>
+              <button class="btn btn-ghost" type="button" data-goto="safety">Open glucose log</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h2>Month-1 targets</h2></div>
+            <div class="table-wrap">
+              <table>
+                <caption class="sr-only">Month one targets and current progress</caption>
+                <thead><tr><th scope="col">Target</th><th scope="col" class="num">Goal</th><th scope="col" class="num">Today</th></tr></thead>
+                <tbody id="dash-targets"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head">
+            <h2>Glucose trend — last 14 readings</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="dash-chart-toggle" aria-pressed="false">View as table</button>
+          </div>
+          <div id="dash-chart"></div>
+        </div>
+      </section>
+
+      <!-- ============ WORKOUTS ============ -->
+      <section class="section" id="workouts" aria-labelledby="workouts-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="workouts-h">Workout library</h1>
+          <p>PPL split · 2–3 reps in reserve · no failure training in month one</p>
+        </div>
+
+        <div class="alert alert-info">
+          <span class="alert-ico" aria-hidden="true">ℹ️</span>
+          <div><strong>Rules:</strong> rest 90–120 s on compounds, 60–90 s on isolation. Controlled 2-second lowering phase. Add load only when the top of the rep range is hit with clean form. Checking a set off starts the rest timer automatically.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Session</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="reset-session">Reset today</button>
+          </div>
+          <div class="field" style="max-width:460px;">
+            <label for="workout-selector">Select routine</label>
+            <select id="workout-selector">
+              <option value="pushA">Push A — chest, shoulders, triceps</option>
+              <option value="pullA">Pull A — back, biceps, posture</option>
+              <option value="legsA">Legs A — leg mass + metabolic</option>
+              <option value="pushB">Push B — upper body hypertrophy</option>
+              <option value="pullB">Pull B — back + arms</option>
+              <option value="legsB">Legs B + core — conditioning</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head">
+            <h2 id="workout-title">Push A</h2>
+            <div class="spacer"></div>
+            <span class="stat-hint" id="workout-progress-label"></span>
+          </div>
+          <div id="workout-list"></div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+            <div class="card-head" style="margin-bottom:8px;"><h3>Cardio</h3></div>
+            <p id="workout-cardio" style="font-size:14px;color:var(--text-2);"></p>
+            <label class="check-row" style="margin-top:8px;max-width:320px;">
+              <input type="checkbox" id="cardio-done"><span>Cardio completed</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head"><h2>Weekly schedule</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Weekly training and cardio schedule</caption>
+              <thead><tr><th scope="col">Day</th><th scope="col">Training</th><th scope="col">Cardio</th><th scope="col">Focus</th></tr></thead>
+              <tbody>
+                <tr><td>Monday</td><td><span class="tag tag-push">Push A</span></td><td>10–15 min easy</td><td>Chest, shoulders, triceps</td></tr>
+                <tr><td>Tuesday</td><td><span class="tag tag-pull">Pull A</span></td><td>10–15 min easy</td><td>Back, biceps, posture</td></tr>
+                <tr><td>Wednesday</td><td><span class="tag tag-legs">Legs A</span></td><td>10 min walk</td><td>Leg mass + metabolic</td></tr>
+                <tr><td>Thursday</td><td><span class="tag tag-push">Push B</span></td><td>10–15 min easy</td><td>Upper-body hypertrophy</td></tr>
+                <tr><td>Friday</td><td><span class="tag tag-pull">Pull B</span></td><td>10–15 min easy</td><td>Back + arms</td></tr>
+                <tr><td>Saturday</td><td><span class="tag tag-legs">Legs B + core</span></td><td>20–30 min brisk</td><td>Legs + conditioning</td></tr>
+                <tr><td>Sunday</td><td><span class="tag tag-rest">Recovery</span></td><td>20–30 min walk (optional)</td><td>Rest / mobility</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MEALS ============ -->
+      <section class="section" id="meals" aria-labelledby="meals-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="meals-h">30-day meal rotation</h1>
+          <p>Diabetes-friendly · ~2,000–2,200 kcal · 120–140 g protein</p>
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-ico" aria-hidden="true">ℹ️</span>
+          <div><strong>Key rules:</strong> protein at every meal · vegetables twice a day minimum · no liquid calories · pair poha/upma/dosa with eggs, curd or paneer · pre-workout snack is optional and driven by glucose and energy.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Choose a day</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="meal-today">Jump to today</button>
+          </div>
+          <div class="field" style="max-width:320px;">
+            <label for="meal-day-selector">Day of rotation</label>
+            <select id="meal-day-selector"></select>
+          </div>
+        </div>
+
+        <div class="grid" id="meal-display" style="margin-top:18px;"></div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head"><h2>🆘 Office / Zepto / Blinkit emergency kit</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Emergency food kit items and their uses</caption>
+              <thead><tr><th scope="col">Item</th><th scope="col">Use</th></tr></thead>
+              <tbody>
+                <tr><td>Bananas, apples, guava, oranges</td><td>Pre-workout or planned snack</td></tr>
+                <tr><td>Plain Greek yogurt / unsweetened curd</td><td>Protein + easy snack</td></tr>
+                <tr><td>Boiled eggs</td><td>Fast protein</td></tr>
+                <tr><td>Roasted chana</td><td>Controlled-portion snack</td></tr>
+                <tr><td>Unsalted almonds / peanuts</td><td>10–15 g portion</td></tr>
+                <tr><td><strong>Glucose tablets</strong></td><td><strong>Emergency hypo treatment only</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DIARY ============ -->
+      <section class="section" id="diary" aria-labelledby="diary-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="diary-h">Food diary</h1>
+          <p id="diary-date-label">Today's intake, macros and water</p>
+        </div>
+
+        <div class="grid" style="margin-bottom:18px;">
+          <div class="stat">
+            <div class="stat-label">Calories</div>
+            <div class="stat-value"><span id="diary-kcal">0</span> <small id="diary-kcal-goal">/ 2100</small></div>
+            <div class="bar" style="margin-top:9px;"><span id="diary-kcal-bar" style="width:0%"></span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Protein</div>
+            <div class="stat-value"><span id="diary-pro">0</span> <small>g / 130 g</small></div>
+            <div class="bar success" style="margin-top:9px;"><span id="diary-pro-bar" style="width:0%"></span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Carbs</div>
+            <div class="stat-value"><span id="diary-carb">0</span> <small>g</small></div>
+            <div class="stat-hint">Spread evenly across meals</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Water</div>
+            <div class="stat-value"><span id="diary-water">0</span> <small>glasses</small></div>
+            <div class="btn-row" style="margin-top:8px;">
+              <button class="btn btn-soft btn-sm" type="button" id="water-minus" aria-label="Remove one glass of water">−</button>
+              <button class="btn btn-soft btn-sm" type="button" id="water-plus" aria-label="Add one glass of water">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Entries</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="diary-export">Export CSV</button>
+          </div>
+          <div id="diary-list"></div>
+        </div>
+      </section>
+
+      <!-- ============ SCANNER ============ -->
+      <section class="section" id="scanner" aria-labelledby="scanner-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="scanner-h">Smart food scanner</h1>
+          <p>Live barcode lookup via Open Food Facts, with an offline fallback database</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <h2>Camera</h2>
+              <div class="spacer"></div>
+              <span class="stat-hint" id="camera-status" role="status">Camera off</span>
+            </div>
+            <div class="scanner-view" id="scanner-view">
+              <div class="scanner-placeholder" id="scanner-placeholder">
+                <span class="big" aria-hidden="true">📷</span>
+                Start the camera to scan a barcode, or type the number below.
+              </div>
+              <div class="scan-frame" hidden id="scan-frame" aria-hidden="true"><div class="scan-laser"></div></div>
+            </div>
+            <div class="btn-row" style="margin-top:14px;">
+              <button class="btn" type="button" id="camera-start">Start camera</button>
+              <button class="btn btn-ghost" type="button" id="camera-stop" disabled>Stop</button>
+            </div>
+            <p class="hint" style="margin-top:8px;">Live barcode detection needs a Chromium-based browser. On other browsers the camera still previews and you can type the code manually.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h2>Manual lookup</h2></div>
+            <div class="field">
+              <label for="barcode-input">Barcode or product name</label>
+              <input type="search" id="barcode-input" placeholder="e.g. 8901030 or Amul milk" autocomplete="off" enterkeyhint="search">
+              <p class="hint">Offline examples: <code>8901030</code>, <code>8901725</code>, <code>generic-egg</code>, <code>generic-banana</code></p>
+            </div>
+            <div class="btn-row" style="margin-top:12px;">
+              <button class="btn" type="button" id="lookup-btn">Look up</button>
+              <button class="btn btn-ghost" type="button" id="random-scan">Try a sample</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="scan-result-card" style="margin-top:18px;display:none;" aria-live="polite">
+          <div class="card-head">
+            <h2>Result</h2>
+            <div class="spacer"></div>
+            <span class="tag tag-push" id="scan-source">Source</span>
+          </div>
+          <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;">
+            <img id="scan-image" alt="" style="width:96px;border-radius:10px;display:none;border:1px solid var(--border);">
+            <div style="flex:1;min-width:220px;">
+              <p style="font-weight:800;font-size:16px;" id="scan-name"></p>
+              <p class="stat-hint" id="scan-details" style="margin-top:3px;"></p>
+              <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;">
+                <div><div class="stat-label">kcal</div><div style="font-weight:800;" id="scan-kcal">0</div></div>
+                <div><div class="stat-label">Protein</div><div style="font-weight:800;" id="scan-pro">0</div></div>
+                <div><div class="stat-label">Carbs</div><div style="font-weight:800;" id="scan-carb">0</div></div>
+                <div><div class="stat-label">Fat</div><div style="font-weight:800;" id="scan-fat">0</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="field">
+              <label for="scan-qty">Quantity (g)</label>
+              <input type="number" id="scan-qty" value="100" min="1" max="5000" step="1" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="scan-meal">Add to meal</label>
+              <select id="scan-meal">
+                <option>Breakfast</option><option>Mid-morning</option>
+                <option selected>Lunch</option><option>Pre-workout</option>
+                <option>Dinner</option><option>Snack</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn" type="button" id="add-scanned">Add to diary</button>
+            <button class="btn btn-ghost" type="button" id="discard-scan">Discard</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SAFETY ============ -->
+      <section class="section" id="safety" aria-labelledby="safety-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="safety-h">Safety &amp; glucose log</h1>
+          <p>First two weeks tracking protocol</p>
+        </div>
+
+        <div class="alert alert-danger">
+          <span class="alert-ico" aria-hidden="true">🚨</span>
+          <div>
+            <strong>Hypoglycaemia protocol (below 70 mg/dL)</strong>
+            <ol>
+              <li>Stop training immediately and sit down.</li>
+              <li>Take 15–20 g fast-acting glucose (tablets or gel).</li>
+              <li>Recheck after 15 minutes. Repeat if still below 70.</li>
+              <li>Do not train through a low. Inform someone nearby.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h2>Before every gym session</h2></div>
+            <div id="pre-checklist"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h2>Stop training if…</h2></div>
+            <ul style="line-height:2;color:var(--text-2);">
+              <li>Dizziness or feeling faint</li>
+              <li>Unusual weakness</li>
+              <li>Nausea or vomiting</li>
+              <li>Chest pain</li>
+              <li>Severe breathlessness</li>
+              <li>Confusion or difficulty speaking</li>
+            </ul>
+            <div class="alert alert-warn" style="margin:16px 0 0;">
+              <span class="alert-ico" aria-hidden="true">📞</span>
+              <div>If symptoms are severe or do not resolve, seek emergency care immediately.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head">
+            <h2>Glucose log</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="glucose-export">Export CSV</button>
+          </div>
+          <p class="stat-hint" style="margin-bottom:14px;">Record pre- and post-gym readings to learn your personal response. Entries save automatically and sync across devices.</p>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Glucose readings log</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Date</th><th scope="col">Time</th>
+                  <th scope="col" class="num">Pre-gym</th><th scope="col" class="num">Post-gym</th>
+                  <th scope="col">Symptoms</th><th scope="col">Pre-workout snack</th>
+                  <th scope="col">Notes</th><th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="glucose-rows"></tbody>
+            </table>
+          </div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn" type="button" id="glucose-add">Add today's row</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PROGRESS ============ -->
+      <section class="section" id="progress" aria-labelledby="progress-h" tabindex="-1">
+        <div class="page-head">
+          <h1 id="progress-h">Weekly scorecard</h1>
+          <p>Track trends, not single data points</p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Metrics</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="scorecard-export">Export CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Weekly scorecard metrics</caption>
+              <thead>
+                <tr><th scope="col">Metric</th><th scope="col">Week 1</th><th scope="col">Week 2</th><th scope="col">Week 3</th><th scope="col">Week 4</th></tr>
+              </thead>
+              <tbody id="scorecard-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head">
+            <h2>Weight trend</h2>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost btn-sm" type="button" id="weight-chart-toggle" aria-pressed="false">View as table</button>
+          </div>
+          <div id="weight-chart"></div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-head"><h2>4-week progression guide</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Four week progression guide</caption>
+              <thead><tr><th scope="col">Week</th><th scope="col">Lifting</th><th scope="col">Cardio</th><th scope="col">Goal</th></tr></thead>
+              <tbody>
+                <tr><td><strong>1</strong></td><td>2–3 RIR; conservative loads</td><td>10 min most days</td><td>Learn technique, prove consistency</td></tr>
+                <tr><td><strong>2</strong></td><td>Same exercises; add reps where possible</td><td>12–15 min</td><td>Build work capacity</td></tr>
+                <tr><td><strong>3</strong></td><td>Add small load once rep range achieved</td><td>15–20 min; Sat 25–30</td><td>Progressive overload</td></tr>
+                <tr><td><strong>4</strong></td><td>Strict form; modest load/reps progression</td><td>20 min most days; Sat 30</td><td>Finish stronger, not destroyed</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert alert-info" style="margin-top:18px;">
+          <span class="alert-ico" aria-hidden="true">📋</span>
+          <div><strong>Before month two:</strong> bring your first 2–4 weeks of glucose readings, weight and waist trend, and gym performance to your diabetes clinician. Do not adjust medications yourself.</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ================= REST TIMER ================= -->
+<div class="rest-timer" id="rest-timer" role="timer" aria-live="off" aria-label="Rest timer">
+  <span aria-hidden="true">⏱️</span>
+  <span class="time" id="rest-time">1:30</span>
+  <button class="btn btn-soft btn-sm" type="button" id="rest-toggle">Pause</button>
+  <button class="btn btn-ghost btn-sm" type="button" id="rest-close" aria-label="Close rest timer">✕</button>
+</div>
+
+<!-- ================= TOASTS ================= -->
+<div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ================= DATA DIALOG ================= -->
+<dialog id="data-dialog" aria-labelledby="data-dialog-h">
+  <div class="dialog-head">
+    <h2 id="data-dialog-h">Data &amp; settings</h2>
+  </div>
+  <div class="dialog-body">
+
+    <fieldset>
+      <legend>Cross-device sync</legend>
+      <p style="font-size:13px;color:var(--muted);margin:0;">
+        Optional. Sync your data between phone and PC using a free Firebase Realtime Database.
+        Same config + room code on both devices = automatic two-way sync.
+      </p>
+
+      <p style="font-size:13px;">
+        <strong>Status:</strong>
+        <span id="sync-status-text">Not configured</span>
+        <span id="sync-status-detail" class="stat-hint" style="display:block;"></span>
+      </p>
+
+      <details>
+        <summary>📖 How to set up Firebase (2 minutes)</summary>
+        <ol>
+          <li>Go to <code>console.firebase.google.com</code> and create a free project.</li>
+          <li>In the sidebar, click <strong>Build → Realtime Database → Create Database</strong>. Choose a region, then start in <strong>test mode</strong>.</li>
+          <li>Click the ⚙️ gear → <strong>Project settings</strong> → scroll to <strong>Your apps</strong> → click the <code>&lt;/&gt;</code> web icon.</li>
+          <li>Register the app (any nickname), then copy the <code>firebaseConfig</code> object it shows you.</li>
+          <li>Paste it into the box below, then generate a room code.</li>
+          <li>On your other device, paste the same config + room code.</li>
+        </ol>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">
+          ⚠️ The room code is your only secret — anyone who has it can read/write your data.
+          Use the <strong>Generate</strong> button to make a long random one.
+        </p>
+      </details>
+
+      <div class="field">
+        <label for="sync-config">Firebase config (JSON)</label>
+        <textarea id="sync-config" spellcheck="false" placeholder='{"apiKey":"...","authDomain":"...","databaseURL":"https://your-project.firebaseio.com","projectId":"..."}'></textarea>
+      </div>
+
+      <div class="field">
+        <label for="sync-room">Room code (shared secret)</label>
+        <div class="input-group">
+          <input type="text" id="sync-room" placeholder="Click Generate →" autocomplete="off" spellcheck="false">
+          <button class="btn btn-soft btn-sm" type="button" id="sync-room-generate">Generate</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="sync-room-copy">Copy</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" type="button" id="sync-connect">Connect &amp; sync</button>
+        <button class="btn btn-ghost" type="button" id="sync-now">Sync now</button>
+        <button class="btn btn-ghost" type="button" id="sync-disconnect">Disconnect</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Targets</legend>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field"><label for="set-kcal">Calorie target (kcal)</label><input type="number" id="set-kcal" min="1000" max="5000" step="50"></div>
+        <div class="field"><label for="set-protein">Protein target (g)</label><input type="number" id="set-protein" min="40" max="300" step="5"></div>
+        <div class="field"><label for="set-steps">Daily step target</label><input type="number" id="set-steps" min="1000" max="30000" step="500"></div>
+        <div class="field"><label for="set-sessions">Sessions per week</label><input type="number" id="set-sessions" min="1" max="7" step="1"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Backup</legend>
+      <p style="font-size:13px;color:var(--muted);margin:0;">
+        Everything is stored in this browser's local storage, plus your Firebase room if sync is enabled.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-soft" type="button" id="export-json">Export backup (JSON)</button>
+        <button class="btn btn-soft" type="button" id="import-json">Import backup</button>
+        <input type="file" id="import-file" accept="application/json" class="sr-only" tabindex="-1">
+        <button class="btn btn-danger" type="button" id="reset-all">Erase all data</button>
+      </div>
+    </fieldset>
+
+  </div>
+  <div class="dialog-foot">
+    <button class="btn btn-ghost" type="button" data-close-dialog>Close</button>
+    <button class="btn" type="button" data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+<script type="module">
+"use strict";
+
+/* ============================================================================
+   Clay's Health Hub
+   A single-file, offline-capable, cross-device-synced health tracker.
+   Sections:
+     1.  Utilities
+     2.  State store (localStorage + per-record sync metadata)
+     3.  Toasts, dialogs, theme
+     4.  Navigation & routing
+     5.  Rest timer
+     6.  Dashboard
+     7.  Workouts
+     8.  Meals
+     9.  Diary
+     10. Scanner
+     11. Safety & glucose
+     12. Progress scorecard
+     13. Sync manager (Firebase Realtime Database)
+     14. Data management
+     15. PWA manifest
+     16. Init
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- 1. UTILS */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+const round1 = (n) => Math.round(n * 10) / 10;
+
+function isoDate(d = new Date()) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function prettyDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+}
+function weekKey(d = new Date()) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = (t.getDay() + 6) % 7;
+  t.setDate(t.getDate() - day);
+  return isoDate(t);
+}
+function debounce(fn, wait = 400) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+}
+function download(filename, text, mime = "text/plain") {
+  const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function toCSV(rows) {
+  return rows.map((row) => row.map((c) => {
+    const s = String(c ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }).join(",")).join("\r\n");
+}
+
+/* ------------------------------------------------------- 2. STATE STORE */
+const STORAGE_KEY = "clay-health-hub/v3";
+const SYNC_CFG_KEY = "clay-health-hub/sync-config";
+
+const DEFAULT_STATE = {
+  version: 3,
+  createdAt: new Date().toISOString(),
+  settings: { theme: "auto", kcalTarget: 2100, proteinTarget: 130, stepTarget: 7000, sessionsTarget: 6 },
+  glucose: [],
+  checklists: {},
+  workouts: {},
+  diary: {},
+  water: {},
+  scorecard: {},
+  meds: [],
+  /* per-record/collection timestamps for conflict-free merging */
+  _sync: {
+    deviceId: uid(),
+    settings: 0,
+    meds: 0,
+    glucose: {},   // id -> ts
+    diary: {},     // date -> ts
+    workouts: {},  // date -> ts
+    water: {},     // date -> ts
+    checklists: {},// date -> ts
+    scorecard: {}  // week -> ts
+  }
+};
+
+const Store = {
+  data: structuredClone(DEFAULT_STATE),
+
+  load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) this.data = this.migrate(JSON.parse(raw));
+    } catch (err) {
+      console.warn("Could not read saved data, starting fresh.", err);
+      this.data = structuredClone(DEFAULT_STATE);
+    }
+  },
+
+  migrate(saved) {
+    const base = structuredClone(DEFAULT_STATE);
+    if (!saved || typeof saved !== "object") return base;
+    return {
+      ...base, ...saved,
+      settings: { ...base.settings, ...(saved.settings || {}) },
+      glucose: Array.isArray(saved.glucose) ? saved.glucose : [],
+      checklists: saved.checklists || {},
+      workouts: saved.workouts || {},
+      diary: saved.diary || {},
+      water: saved.water || {},
+      scorecard: saved.scorecard || {},
+      meds: Array.isArray(saved.meds) ? saved.meds : [],
+      _sync: { ...base._sync, ...(saved._sync || {}) }
+    };
+  },
+
+  /** Mark a collection/record as modified now. */
+  touch(collection, key) {
+    this.data._sync = this.data._sync || {};
+    if (key === undefined) {
+      this.data._sync[collection] = Date.now();
+    } else {
+      const map = (this.data._sync[collection] ||= {});
+      map[key] = Date.now();
+    }
+  },
+
+  save: debounce(function () {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Store.data)); }
+    catch (err) { console.error("Save failed", err); toast("Could not save — storage may be full.", "error"); }
+    if (window.Sync) window.Sync.schedulePush();
+  }, 250),
+
+  saveNow() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data)); }
+    catch (err) { console.error("Save failed", err); }
+    if (window.Sync) window.Sync.schedulePush();
+  },
+
+  reset() {
+    this.data = structuredClone(DEFAULT_STATE);
+    this.data._sync.deviceId = uid();
+    this.saveNow();
+  }
+};
+
+const settings = () => Store.data.settings;
+
+/* --------------------------------------- 3. TOASTS, DIALOGS, THEME */
+function toast(message, type = "info", timeout = 4200) {
+  const host = $("#toasts");
+  const node = document.createElement("div");
+  node.className = `toast toast-${type}`;
+  const icon = { success: "✅", error: "⛔", warn: "⚠️", info: "ℹ️" }[type] || "ℹ️";
+  node.innerHTML = `<span aria-hidden="true">${icon}</span><span>${esc(message)}</span>`;
+  host.appendChild(node);
+  setTimeout(() => {
+    node.classList.add("is-out");
+    node.addEventListener("animationend", () => node.remove(), { once: true });
+    setTimeout(() => node.remove(), 600);
+  }, timeout);
+}
+
+function applyTheme() {
+  const pref = settings().theme;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const dark = pref === "dark" || (pref === "auto" && prefersDark);
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  const btn = $("#theme-toggle"), ico = $("#theme-ico");
+  if (btn && ico) {
+    ico.textContent = dark ? "☀️" : "🌙";
+    btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  // Also update the meta theme-color for the mobile browser chrome
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", dark ? "#080d19" : "#4f46e5");
+}
+
+function initTheme() {
+  applyTheme();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (settings().theme === "auto") applyTheme();
+  });
+  $("#theme-toggle").addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    settings().theme = isDark ? "light" : "dark";
+    Store.touch("settings");
+    Store.save();
+    applyTheme();
+  });
+}
+
+/* --------------------------------------------- 4. NAVIGATION & ROUTING */
+const SECTIONS = ["dashboard", "workouts", "meals", "diary", "scanner", "safety", "progress"];
+
+function showSection(id, { focus = true, updateHash = true } = {}) {
+  if (!SECTIONS.includes(id)) id = "dashboard";
+  $$(".section").forEach((s) => s.classList.toggle("is-active", s.id === id));
+  $$("#main-nav .nav-item").forEach((btn) => {
+    if (btn.dataset.section === id) btn.setAttribute("aria-current", "page");
+    else btn.removeAttribute("aria-current");
+  });
+  if (updateHash && location.hash.slice(1) !== id) history.replaceState(null, "", `#${id}`);
+  if (focus) {
+    const main = $("#main");
+    main.scrollTop = 0;
+    const heading = $(`#${id} h1`);
+    if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
+  }
+  if (id === "diary") renderDiary();
+  if (id === "progress") renderScorecard();
+}
+
+function initNav() {
+  const nav = $("#main-nav");
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest(".nav-item");
+    if (btn) showSection(btn.dataset.section);
+  });
+  nav.addEventListener("keydown", (e) => {
+    if (!["ArrowDown","ArrowUp","ArrowRight","ArrowLeft","Home","End"].includes(e.key)) return;
+    const items = $$(".nav-item", nav);
+    const i = items.indexOf(document.activeElement);
+    if (i === -1) return;
+    e.preventDefault();
+    let next = i;
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (i + 1) % items.length;
+    if (e.key === "ArrowUp"   || e.key === "ArrowLeft")  next = (i - 1 + items.length) % items.length;
+    if (e.key === "Home") next = 0;
+    if (e.key === "End")  next = items.length - 1;
+    items[next].focus();
+  });
+  document.addEventListener("click", (e) => {
+    const goto = e.target.closest("[data-goto]");
+    if (goto) showSection(goto.dataset.goto);
+  });
+  window.addEventListener("hashchange", () => {
+    showSection(location.hash.slice(1) || "dashboard", { focus: false, updateHash: false });
+  });
+  $("#print-btn").addEventListener("click", () => window.print());
+  $("#today-btn").addEventListener("click", () => {
+    renderWorkouts(); renderDiary(); renderDashboard();
+    toast("Refreshed.", "info", 1500);
+  });
+}
+
+/* ------------------------------------------------------ 5. REST TIMER */
+const RestTimer = {
+  remaining: 90, duration: 90, running: false, handle: null, el: null,
+  init() {
+    this.el = $("#rest-timer");
+    $("#rest-toggle").addEventListener("click", () => this.toggle());
+    $("#rest-close").addEventListener("click", () => this.stop());
+  },
+  start(seconds = 90) {
+    this.duration = seconds; this.remaining = seconds; this.running = true;
+    this.el.classList.add("is-open"); this.el.classList.remove("is-finished");
+    this.el.setAttribute("aria-live", "off");
+    $("#rest-toggle").textContent = "Pause";
+    this.render(); this.tick();
+  },
+  tick() {
+    clearInterval(this.handle);
+    this.handle = setInterval(() => {
+      if (!this.running) return;
+      this.remaining -= 1; this.render();
+      if (this.remaining <= 0) this.finish();
+    }, 1000);
+  },
+  finish() {
+    clearInterval(this.handle); this.running = false; this.remaining = 0;
+    this.render();
+    this.el.classList.add("is-finished"); this.el.setAttribute("aria-live", "polite");
+    $("#rest-toggle").textContent = "Restart";
+    if (navigator.vibrate) navigator.vibrate([180, 90, 180]);
+  },
+  toggle() {
+    if (this.remaining <= 0) return this.start(this.duration);
+    this.running = !this.running;
+    $("#rest-toggle").textContent = this.running ? "Pause" : "Resume";
+  },
+  stop() { clearInterval(this.handle); this.running = false; this.el.classList.remove("is-open", "is-finished"); },
+  render() {
+    const m = Math.floor(Math.max(this.remaining, 0) / 60);
+    const s = Math.max(this.remaining, 0) % 60;
+    $("#rest-time").textContent = `${m}:${String(s).padStart(2, "0")}`;
+  }
+};
+
+/* ------------------------------------------------------- 6. DASHBOARD */
+const DAY_PLAN = {
+  0: { label: "Recovery",       key: null,    hint: "Rest, mobility, 20–30 min optional walk" },
+  1: { label: "Push A",         key: "pushA", hint: "Chest, shoulders, triceps" },
+  2: { label: "Pull A",         key: "pullA", hint: "Back, biceps, posture" },
+  3: { label: "Legs A",         key: "legsA", hint: "Leg mass + metabolic" },
+  4: { label: "Push B",         key: "pushB", hint: "Upper-body hypertrophy" },
+  5: { label: "Pull B",         key: "pullB", hint: "Back + arms" },
+  6: { label: "Legs B + Core",  key: "legsB", hint: "Legs + conditioning" }
+};
+
+function currentStreak() {
+  const dates = new Set([
+    ...Object.keys(Store.data.workouts),
+    ...Object.keys(Store.data.diary),
+    ...Store.data.glucose.map((g) => g.date)
+  ]);
+  let streak = 0;
+  const cursor = new Date();
+  if (!dates.has(isoDate(cursor))) cursor.setDate(cursor.getDate() - 1);
+  while (dates.has(isoDate(cursor))) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
+  return streak;
+}
+
+function sessionsThisWeek() {
+  const start = weekKey();
+  const end = new Date(start); end.setDate(end.getDate() + 7);
+  return Object.entries(Store.data.workouts).filter(([date, w]) => {
+    if (date < start || date >= isoDate(end)) return false;
+    const sets = Object.values(w.sets || {});
+    return sets.some((s) => s.some((x) => x.done));
+  }).length;
+}
+
+function renderDashboard() {
+  const plan = DAY_PLAN[new Date().getDay()];
+  $("#dash-today").textContent = plan.label;
+  $("#dash-today-hint").textContent = plan.hint;
+  $("#dash-streak").textContent = currentStreak();
+  const sessions = sessionsThisWeek();
+  const target = settings().sessionsTarget;
+  $("#dash-sessions").textContent = sessions;
+  $("#dash-sessions-target").textContent = `/${target} sessions`;
+  $("#dash-sessions-bar").style.width = `${clamp((sessions / target) * 100, 0, 100)}%`;
+
+  const readings = Store.data.glucose
+    .filter((g) => g.pre || g.post)
+    .sort((a, b) => (b.date + (b.time || "")).localeCompare(a.date + (a.time || "")));
+  const last = readings[0];
+  if (last) {
+    const value = last.pre || last.post;
+    const v = num(value);
+    const isLow = v > 0 && v < 70, isHigh = v > 250;
+    $("#dash-glucose-value").textContent = `${value} mg/dL`;
+    $("#dash-glucose-value").style.color = isLow ? "var(--danger)" : isHigh ? "var(--warn)" : "var(--text)";
+    $("#dash-glucose-hint").textContent = `${prettyDate(last.date)} · ${last.pre ? "pre-gym" : "post-gym"}`;
+  } else {
+    $("#dash-glucose-value").textContent = "—";
+    $("#dash-glucose-value").style.color = "";
+    $("#dash-glucose-hint").textContent = "No readings logged yet";
+  }
+
+  const t = todayDiaryTotals();
+  const rows = [
+    ["Gym sessions / week", String(target), String(sessions)],
+    ["Protein", "120–140 g", `${Math.round(t.pro)} g`],
+    ["Steps", settings().stepTarget.toLocaleString(), "—"],
+    ["Water", "8 glasses", String(Store.data.water[isoDate()] || 0)],
+    ["Bed by", "7:30 PM", "—"]
+  ];
+  $("#dash-targets").innerHTML = rows.map(([label, goal, now]) => `
+    <tr><th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--text);font-weight:600;padding-left:0;">${esc(label)}</th>
+    <td class="num">${esc(goal)}</td><td class="num"><strong>${esc(now)}</strong></td></tr>`).join("");
+
+  renderGlucoseChart("#dash-chart", readings.slice(0, 14).reverse(), "dash-chart-toggle");
+}
+
+function renderGlucoseChart(hostSel, readings, toggleId) {
+  const host = $(hostSel); if (!host) return;
+  const toggle = toggleId ? $(`#${toggleId}`) : null;
+  const asTable = toggle?.getAttribute("aria-pressed") === "true";
+  if (!readings.length) {
+    host.innerHTML = `<div class="chart-empty">No readings yet. Log your first pre-gym glucose value to see the trend.</div>`;
+    return;
+  }
+  const points = readings.map((r) => ({ label: prettyDate(r.date), value: num(r.pre || r.post) })).filter((p) => p.value > 0);
+  if (!points.length) { host.innerHTML = `<div class="chart-empty">Readings exist but contain no numeric values.</div>`; return; }
+  if (asTable) {
+    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Glucose readings</caption>
+      <thead><tr><th scope="col">Date</th><th scope="col" class="num">mg/dL</th><th scope="col">Status</th></tr></thead>
+      <tbody>${points.map((p) => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td>
+        <td>${p.value < 70 ? '<span class="tag tag-legs">Low</span>' : p.value > 250 ? '<span class="tag tag-legs">High</span>' : '<span class="tag tag-pull">In range</span>'}</td></tr>`).join("")}
+      </tbody></table></div>`;
+    return;
+  }
+  host.innerHTML = buildLineChart(points, { target: 70, ariaLabel: `Glucose trend across ${points.length} readings.` });
+}
+
+function buildLineChart(points, opts = {}) {
+  const W = 660, H = 210, pad = { top: 18, right: 16, bottom: 34, left: 44 };
+  const innerW = W - pad.left - pad.right, innerH = H - pad.top - pad.bottom;
+  const values = points.map((p) => p.value);
+  const dataMin = Math.min(...values), dataMax = Math.max(...values);
+  const span = Math.max(dataMax - dataMin, 20);
+  let lo = Math.max(0, Math.floor((dataMin - span * 0.15) / 10) * 10);
+  let hi = Math.ceil((dataMax + span * 0.15) / 10) * 10;
+  const x = (i) => pad.left + (points.length === 1 ? innerW / 2 : (i / (points.length - 1)) * innerW);
+  const y = (v) => pad.top + innerH - ((v - lo) / (hi - lo)) * innerH;
+  const ticks = 4;
+  let gridLines = "";
+  for (let i = 0; i <= ticks; i++) {
+    const v = lo + ((hi - lo) * i) / ticks, yy = y(v);
+    gridLines += `<line class="grid-line" x1="${pad.left}" y1="${yy.toFixed(1)}" x2="${W - pad.right}" y2="${yy.toFixed(1)}"></line>`;
+    gridLines += `<text class="axis-text" x="${pad.left - 8}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`;
+  }
+  const linePath = points.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${x(points.length - 1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`;
+  const dots = points.map((p, i) => `<circle class="dot" cx="${x(i).toFixed(1)}" cy="${y(p.value).toFixed(1)}" r="3.5"><title>${esc(p.label)}: ${p.value}</title></circle>`).join("");
+  const step = Math.max(1, Math.ceil(points.length / 6));
+  const xLabels = points.map((p, i) => (i % step === 0 || i === points.length - 1)
+    ? `<text class="axis-text" x="${x(i).toFixed(1)}" y="${H - 10}" text-anchor="middle">${esc(p.label.split(",")[0])}</text>` : "").join("");
+  let targetLine = "";
+  if (opts.target != null && opts.target >= lo && opts.target <= hi) {
+    const ty = y(opts.target);
+    targetLine = `<line class="target-line" x1="${pad.left}" y1="${ty.toFixed(1)}" x2="${W - pad.right}" y2="${ty.toFixed(1)}"></line>
+      <text class="axis-text" x="${W - pad.right}" y="${(ty - 6).toFixed(1)}" text-anchor="end" fill="var(--danger)">target ${opts.target}</text>`;
+  }
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.ariaLabel || "Line chart")}" preserveAspectRatio="xMidYMid meet">
+    ${gridLines}${targetLine}<path class="area" d="${areaPath}"></path><path class="series" d="${linePath}"></path>${dots}${xLabels}</svg>`;
+}
+
+/* -------------------------------------------------------- 7. WORKOUTS */
+const WORKOUTS = {
+  pushA: { title: "Push A — chest, shoulders, triceps", cardio: "10–15 min easy to moderate post-lifting. Pace: you can still speak in short sentences.",
+    exercises: [["Machine / DB chest press","3 × 8–12","2–3 RIR"],["Incline DB press","3 × 8–12","2 RIR"],["Seated DB shoulder press","2 × 8–12","2–3 RIR"],["Cable / lateral raise","3 × 12–15","2 RIR"],["Rope triceps pushdown","3 × 10–15","2 RIR"],["Overhead cable triceps extension","2 × 12–15","2 RIR"]] },
+  pullA: { title: "Pull A — back, biceps, posture", cardio: "10–15 min easy to moderate post-lifting.",
+    exercises: [["Lat pulldown","3 × 8–12","2 RIR"],["Seated cable row","3 × 8–12","2 RIR"],["Chest-supported DB / machine row","2 × 10–12","2 RIR"],["Face pull / reverse fly","3 × 12–15","2 RIR"],["DB curl","3 × 10–12","2 RIR"],["Hammer curl","2 × 10–15","2 RIR"]] },
+  legsA: { title: "Legs A — leg mass + metabolic fitness", cardio: "10 min easy walking post-lifting. If legs are exhausted, use the bike or elliptical.",
+    exercises: [["Leg press","3 × 8–12","2–3 RIR"],["DB Romanian deadlift","3 × 8–12","2–3 RIR"],["Leg curl","3 × 10–15","2 RIR"],["Leg extension","2 × 10–15","2 RIR"],["Standing calf raise","3 × 12–15","2 RIR"],["Dead bug","3 × 8–10/side","Controlled"]] },
+  pushB: { title: "Push B — upper body hypertrophy", cardio: "10–15 min easy to moderate post-lifting.",
+    exercises: [["Incline machine / DB press","3 × 8–12","2 RIR"],["Flat DB / chest press","3 × 8–12","2 RIR"],["Cable fly","2 × 12–15","2 RIR"],["Machine / DB shoulder press","2 × 8–12","2–3 RIR"],["Lateral raise","3 × 12–20","2 RIR"],["Cable triceps pushdown","3 × 10–15","2 RIR"]] },
+  pullB: { title: "Pull B — back + arms", cardio: "10–15 min easy to moderate post-lifting.",
+    exercises: [["Neutral-grip lat pulldown","3 × 8–12","2 RIR"],["Machine / chest-supported row","3 × 8–12","2 RIR"],["Single-arm cable row","2 × 10–12/side","2 RIR"],["Reverse pec deck","3 × 12–15","2 RIR"],["EZ-bar / DB curl","3 × 8–12","2 RIR"],["Incline DB curl","2 × 10–15","2 RIR"]] },
+  legsB: { title: "Legs B + core — conditioning", cardio: "20–30 min brisk cardio post-lifting. Bike or elliptical if legs are exhausted.",
+    exercises: [["Goblet squat or hack squat","3 × 8–12","2–3 RIR"],["Hip thrust / glute bridge","3 × 8–12","2 RIR"],["Walking lunge or split squat","2 × 8–10/leg","2–3 RIR"],["Seated / lying leg curl","3 × 10–15","2 RIR"],["Seated calf raise","3 × 12–15","2 RIR"],["Cable crunch","3 × 10–15","2 RIR"],["Pallof press","2 × 10–12/side","Controlled"]] }
+};
+
+function setCount(prescription) {
+  const m = String(prescription).match(/^(\d+)\s*[×x]/);
+  return m ? clamp(parseInt(m[1], 10), 1, 10) : 3;
+}
+
+function todaysSession() {
+  const key = $("#workout-selector").value;
+  const date = isoDate();
+  const store = Store.data.workouts;
+  if (!store[date] || store[date].key !== key) {
+    store[date] = { key, sets: {}, cardio: store[date]?.key === key ? store[date].cardio : false };
+    Store.touch("workouts", date);
+  }
+  return store[date];
+}
+
+function renderWorkouts() {
+  const key = $("#workout-selector").value;
+  const data = WORKOUTS[key];
+  const session = todaysSession();
+  $("#workout-title").textContent = data.title;
+  $("#workout-cardio").textContent = data.cardio;
+  $("#cardio-done").checked = !!session.cardio;
+
+  const list = $("#workout-list");
+  list.innerHTML = data.exercises.map((ex, exIndex) => {
+    const [name, prescription, effort] = ex;
+    const count = setCount(prescription);
+    if (!session.sets[name]) {
+      session.sets[name] = Array.from({ length: count }, () => ({ w: "", r: "", done: false }));
+    }
+    const sets = session.sets[name];
+    const bodyId = `ex-body-${exIndex}`;
+    const setRows = sets.map((s, i) => `
+      <div class="set-row${s.done ? " is-done" : ""}" data-ex="${esc(name)}" data-set="${i}">
+        <span class="set-no">Set ${i + 1}</span>
+        <span class="unit-input">
+          <input type="number" inputmode="decimal" min="0" max="1000" step="0.5"
+                 value="${esc(s.w)}" placeholder="—" data-field="w"
+                 aria-label="${esc(name)} set ${i + 1} weight in kilograms">
+          <span class="u">kg</span>
+        </span>
+        <span class="unit-input">
+          <input type="number" inputmode="numeric" min="0" max="100" step="1"
+                 value="${esc(s.r)}" placeholder="—" data-field="r"
+                 aria-label="${esc(name)} set ${i + 1} reps">
+          <span class="u">reps</span>
+        </span>
+        <input type="checkbox" data-field="done" ${s.done ? "checked" : ""}
+               aria-label="Mark ${esc(name)} set ${i + 1} complete">
+      </div>`).join("");
+    return `<div class="exercise">
+      <div class="ex-head">
+        <div class="ex-info">
+          <p class="ex-name">${esc(name)}</p>
+          <p class="ex-meta"><span>${esc(prescription)}</span><span aria-hidden="true">·</span><span class="tag tag-effort">${esc(effort)}</span></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" data-act="toggle-ex"
+                aria-expanded="false" aria-controls="${bodyId}">Sets</button>
+      </div>
+      <div class="ex-body" id="${bodyId}" hidden><div class="set-grid">${setRows}</div></div>
+    </div>`;
+  }).join("");
+
+  updateWorkoutProgress();
+}
+
+function updateWorkoutProgress() {
+  const session = Store.data.workouts[isoDate()];
+  if (!session) return;
+  const all = Object.values(session.sets).flat();
+  const done = all.filter((s) => s.done).length;
+  $("#workout-progress-label").textContent = `${done} / ${all.length} sets complete`;
+}
+
+function initWorkouts() {
+  $("#workout-selector").addEventListener("change", renderWorkouts);
+
+  $("#workout-list").addEventListener("click", (e) => {
+    const btn = e.target.closest('[data-act="toggle-ex"]');
+    if (!btn) return;
+    const body = document.getElementById(btn.getAttribute("aria-controls"));
+    const open = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!open));
+    body.hidden = open;
+    btn.textContent = open ? "Sets" : "Hide";
+  });
+
+  $("#workout-list").addEventListener("input", (e) => {
+    const field = e.target.dataset.field;
+    if (!field || field === "done") return;
+    const row = e.target.closest(".set-row");
+    if (!row) return;
+    const session = Store.data.workouts[isoDate()];
+    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)];
+    if (!set) return;
+    set[field] = e.target.value;
+    Store.touch("workouts", isoDate());
+    Store.save();
+  });
+
+  $("#workout-list").addEventListener("change", (e) => {
+    if (e.target.dataset.field !== "done") return;
+    const row = e.target.closest(".set-row");
+    const session = Store.data.workouts[isoDate()];
+    const set = session?.sets?.[row.dataset.ex]?.[Number(row.dataset.set)];
+    if (!set) return;
+    set.done = e.target.checked;
+    row.classList.toggle("is-done", set.done);
+    Store.touch("workouts", isoDate());
+    Store.save();
+    updateWorkoutProgress();
+    if (set.done) RestTimer.start(90);
+  });
+
+  $("#cardio-done").addEventListener("change", (e) => {
+    todaysSession().cardio = e.target.checked;
+    Store.touch("workouts", isoDate());
+    Store.save();
+  });
+
+  $("#reset-session").addEventListener("click", () => {
+    if (!confirm("Clear today's logged sets for this session?")) return;
+    const date = isoDate();
+    if (Store.data.workouts[date]) {
+      Store.data.workouts[date].sets = {};
+      Store.data.workouts[date].cardio = false;
+      Store.touch("workouts", date);
+    }
+    Store.saveNow(); renderWorkouts();
+    toast("Session reset.", "warn");
+  });
+}
+
+/* ------------------------------------------------------------ 8. MEALS */
+const MEALS = {
+  1:{b:"Poha + 2 eggs",c:"Milk coffee + 10 almonds",pre:"Banana + curd",l:"Chicken curry + 2 small rotis + salad + curd",d:"Paneer bhurji + vegetables"},
+  2:{b:"2 moong-dal chilla + curd",c:"Milk coffee + 1 boiled egg",pre:"Apple + 2 eggs",l:"Fish + ¾ cup rice + vegetables",d:"Dal + paneer + salad + 1 roti"},
+  3:{b:"Vegetable upma + 3 eggs",c:"Milk coffee + 10 peanuts",pre:"Small banana + curd",l:"Chicken tikka + 2 rotis + salad",d:"Egg bhurji + sautéed vegetables + 1 roti"},
+  4:{b:"2 dosa + sambar + 2 eggs",c:"Milk coffee + curd",pre:"Guava + 2 eggs",l:"Fish curry + 2 rotis + vegetables",d:"Paneer + mixed veg + dal"},
+  5:{b:"2 small paratha + curd + 2 eggs",c:"Milk coffee + 10 almonds",pre:"Apple + curd",l:"Chicken + 1 cup rice + large salad",d:"Dal + egg curry + vegetables"},
+  6:{b:"Besan chilla + paneer stuffing",c:"Milk coffee + 1 egg",pre:"Banana + curd",l:"Lean buff/lamb curry + 2 rotis + salad",d:"Chicken soup + paneer/egg salad"},
+  7:{b:"Egg omelette + 1–2 rotis + vegetables",c:"Milk coffee + curd",pre:"Fruit + 2 eggs",l:"Chicken biryani (measured 1 cup) + raita + salad",d:"Grilled fish + vegetables"},
+  8:{b:"Poha + paneer/curd",c:"Milk coffee + nuts",pre:"Apple + 2 eggs",l:"Chicken + 2 rotis + dal + salad",d:"Paneer tikka + vegetables"},
+  9:{b:"2 idli + sambar + 3 eggs",c:"Milk coffee + curd",pre:"Small banana + curd",l:"Fish + rice + vegetables",d:"Egg curry + 1 roti + salad"},
+  10:{b:"Moong chilla + 2 eggs",c:"Milk coffee + almonds",pre:"Guava + 2 eggs",l:"Chicken curry + 2 rotis + salad",d:"Dal + paneer + vegetables"},
+  11:{b:"Vegetable upma + 3 eggs",c:"Milk coffee + curd",pre:"Apple + 10 peanuts",l:"Fish curry + 2 rotis + vegetables",d:"Chicken salad + curd"},
+  12:{b:"2 dosa + sambar + 2 eggs",c:"Milk coffee + 1 egg",pre:"Banana + curd",l:"Chicken tikka + rice + salad",d:"Paneer bhurji + dal + vegetables"},
+  13:{b:"2 small paratha + curd + eggs",c:"Milk coffee + almonds",pre:"Orange + 2 eggs",l:"Lean buff/lamb + 2 rotis + salad",d:"Fish + vegetables"},
+  14:{b:"Besan chilla + curd + eggs",c:"Milk coffee + nuts",pre:"Apple + curd",l:"Chicken + 2 rotis + vegetables",d:"Egg bhurji + dal + salad"},
+  15:{b:"Omelette + 1 roti + vegetables",c:"Milk coffee + curd",pre:"Banana + 2 eggs",l:"Fish + rice + vegetables",d:"Paneer tikka + salad"},
+  16:{b:"Poha + 2 eggs + curd",c:"Milk coffee + almonds",pre:"Guava + 2 eggs",l:"Chicken curry + 2 rotis + salad",d:"Dal + paneer + vegetables"},
+  17:{b:"Moong chilla + paneer + curd",c:"Milk coffee + egg",pre:"Apple + curd",l:"Fish + 1 cup rice + vegetables",d:"Chicken soup + 1 roti + salad"},
+  18:{b:"Idli + sambar + eggs",c:"Milk coffee + almonds",pre:"Banana + curd",l:"Chicken tikka + 2 rotis + salad",d:"Paneer + vegetables + dal"},
+  19:{b:"Upma + 3 eggs",c:"Milk coffee + curd",pre:"Orange + 2 eggs",l:"Lean lamb/buff + 2 rotis + salad",d:"Fish + vegetables"},
+  20:{b:"Dosa + sambar + eggs",c:"Milk coffee + nuts",pre:"Apple + curd",l:"Chicken + rice + salad",d:"Egg curry + vegetables"},
+  21:{b:"Paratha + curd + eggs",c:"Milk coffee + 1 egg",pre:"Banana + curd",l:"Fish curry + 2 rotis + vegetables",d:"Paneer bhurji + salad"},
+  22:{b:"Besan chilla + eggs",c:"Milk coffee + almonds",pre:"Guava + 2 eggs",l:"Chicken + dal + 2 rotis + salad",d:"Fish + vegetables"},
+  23:{b:"Omelette + 2 small rotis + veg",c:"Milk coffee + curd",pre:"Apple + 2 eggs",l:"Chicken biryani (measured 1 cup) + raita + salad",d:"Dal + paneer + vegetables"},
+  24:{b:"Poha + paneer/curd + eggs",c:"Milk coffee + nuts",pre:"Banana + curd",l:"Fish + rice + vegetables",d:"Chicken salad + 1 roti"},
+  25:{b:"Moong chilla + curd + eggs",c:"Milk coffee + almond",pre:"Orange + 2 eggs",l:"Chicken curry + 2 rotis + salad",d:"Paneer + dal + vegetables"},
+  26:{b:"Idli + sambar + eggs",c:"Milk coffee + curd",pre:"Apple + 2 eggs",l:"Lean buff/lamb + 2 rotis + salad",d:"Fish + vegetables"},
+  27:{b:"Upma + eggs + curd",c:"Milk coffee + nuts",pre:"Banana + curd",l:"Chicken tikka + rice + salad",d:"Egg bhurji + dal + vegetables"},
+  28:{b:"Dosa + sambar + eggs",c:"Milk coffee + 1 egg",pre:"Guava + curd",l:"Fish curry + 2 rotis + salad",d:"Paneer tikka + vegetables"},
+  29:{b:"Paratha + curd + eggs",c:"Milk coffee + almonds",pre:"Apple + 2 eggs",l:"Chicken + 2 rotis + vegetables",d:"Dal + egg curry + salad"},
+  30:{b:"Egg omelette + vegetables + 1 roti",c:"Milk coffee + curd",pre:"Banana + 2 eggs",l:"Chicken/fish + rice + vegetables",d:"Paneer + vegetables + curd"}
+};
+
+function initMeals() {
+  const sel = $("#meal-day-selector");
+  sel.innerHTML = Object.keys(MEALS).map((d) => `<option value="${d}">Day ${d}</option>`).join("");
+  sel.addEventListener("change", renderMealDay);
+  $("#meal-today").addEventListener("click", () => {
+    const day = clamp(new Date().getDate(), 1, 30);
+    sel.value = String(day);
+    renderMealDay();
+    toast(`Showing rotation day ${day}.`, "info", 1800);
+  });
+  renderMealDay();
+}
+
+function renderMealDay() {
+  const day = $("#meal-day-selector").value;
+  const m = MEALS[day]; if (!m) return;
+  const blocks = [
+    ["🌅 Breakfast", "6:15–6:30 AM", m.b, "Plus sugar-free milk tea at 4:15 AM"],
+    ["☕ Mid-morning", "10:00 AM", m.c, ""],
+    ["🍌 Pre-workout", "12:45–1:00 PM", m.pre, "Optional — based on glucose and energy"],
+    ["🍗 Post-workout lunch", "3:00–3:30 PM", m.l, ""],
+    ["🌙 Dinner", "6:30–7:30 PM", m.d, "Medicines as prescribed by your clinician"]
+  ];
+  $("#meal-display").innerHTML = blocks.map(([title, time, body, note]) => `
+    <div class="card">
+      <div class="card-head"><h3>${esc(title)}</h3></div>
+      <p class="stat-hint" style="margin-top:-8px;margin-bottom:8px;">${esc(time)}</p>
+      <p style="font-size:15.5px;font-weight:600;">${esc(body)}</p>
+      ${note ? `<p class="stat-hint" style="margin-top:8px;">${esc(note)}</p>` : ""}
+    </div>`).join("");
+}
+
+/* ------------------------------------------------------------ 9. DIARY */
+function todayDiaryTotals() {
+  const entries = Store.data.diary[isoDate()] || [];
+  return entries.reduce((acc, e) => ({
+    kcal: acc.kcal + num(e.kcal), pro: acc.pro + num(e.pro),
+    carb: acc.carb + num(e.carb), fat: acc.fat + num(e.fat)
+  }), { kcal: 0, pro: 0, carb: 0, fat: 0 });
+}
+
+function renderDiary() {
+  const date = isoDate();
+  const entries = Store.data.diary[date] || [];
+  const totals = todayDiaryTotals();
+  const s = settings();
+
+  $("#diary-date-label").textContent = `${prettyDate(date)} — intake, macros and water`;
+  $("#diary-kcal").textContent = Math.round(totals.kcal);
+  $("#diary-kcal-goal").textContent = `/ ${s.kcalTarget}`;
+  $("#diary-kcal-bar").style.width = `${clamp((totals.kcal / s.kcalTarget) * 100, 0, 100)}%`;
+  $("#diary-pro").textContent = Math.round(totals.pro);
+  $("#diary-pro-bar").style.width = `${clamp((totals.pro / s.proteinTarget) * 100, 0, 100)}%`;
+  $("#diary-carb").textContent = Math.round(totals.carb);
+  $("#diary-water").textContent = Store.data.water[date] || 0;
+
+  const badge = $("#diary-badge");
+  if (entries.length) { badge.textContent = String(entries.length); badge.hidden = false; }
+  else badge.hidden = true;
+
+  const list = $("#diary-list");
+  if (!entries.length) {
+    list.innerHTML = `<div class="chart-empty">Nothing logged today. Scan a product or add an entry to get started.</div>`;
+    return;
+  }
+
+  const byMeal = entries.reduce((acc, e) => { (acc[e.meal] ||= []).push(e); return acc; }, {});
+  list.innerHTML = Object.entries(byMeal).map(([meal, items]) => `
+    <div style="margin-bottom:16px;">
+      <div class="card-head" style="margin-bottom:6px;">
+        <h3>${esc(meal)}</h3>
+        <div class="spacer"></div>
+        <span class="stat-hint">${Math.round(items.reduce((a, i) => a + num(i.kcal), 0))} kcal</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">${esc(meal)} entries</caption>
+          <thead><tr>
+            <th scope="col">Item</th><th scope="col" class="num">Qty</th>
+            <th scope="col" class="num">kcal</th><th scope="col" class="num">P</th>
+            <th scope="col" class="num">C</th><th scope="col" class="num">F</th>
+            <th scope="col"><span class="sr-only">Remove</span></th>
+          </tr></thead>
+          <tbody>${items.map((i) => `
+            <tr>
+              <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;color:var(--text);padding-left:12px;">${esc(i.name)}</th>
+              <td class="num">${esc(i.qty)} ${esc(i.unit)}</td>
+              <td class="num">${Math.round(num(i.kcal))}</td>
+              <td class="num">${round1(num(i.pro))}</td>
+              <td class="num">${round1(num(i.carb))}</td>
+              <td class="num">${round1(num(i.fat))}</td>
+              <td class="num"><button class="btn btn-ghost btn-sm" type="button" data-remove-entry="${esc(i.id)}" aria-label="Remove ${esc(i.name)}">✕</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>`).join("");
+}
+
+function initDiary() {
+  const changeWater = (delta) => {
+    const d = isoDate();
+    Store.data.water[d] = clamp((Store.data.water[d] || 0) + delta, 0, 30);
+    Store.touch("water", d);
+    Store.save(); renderDiary();
+  };
+  $("#water-plus").addEventListener("click", () => changeWater(1));
+  $("#water-minus").addEventListener("click", () => changeWater(-1));
+
+  $("#diary-list").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remove-entry]");
+    if (!btn) return;
+    const id = btn.dataset.removeEntry;
+    const d = isoDate();
+    Store.data.diary[d] = (Store.data.diary[d] || []).filter((x) => x.id !== id);
+    if (!Store.data.diary[d].length) delete Store.data.diary[d];
+    Store.touch("diary", d);
+    Store.saveNow(); renderDiary();
+    toast("Entry removed.", "info", 2000);
+  });
+
+  $("#diary-export").addEventListener("click", () => {
+    const date = isoDate();
+    const entries = Store.data.diary[date] || [];
+    if (!entries.length) return toast("No entries to export today.", "warn");
+    const rows = [["Date","Meal","Item","Qty","Unit","kcal","Protein","Carbs","Fat"],
+      ...entries.map((e) => [date, e.meal, e.name, e.qty, e.unit, e.kcal, e.pro, e.carb, e.fat])];
+    download(`food-diary-${date}.csv`, toCSV(rows), "text/csv");
+    toast("Diary exported.", "success");
+  });
+}
+
+/* ---------------------------------------------------------- 10. SCANNER */
+const LOCAL_PRODUCTS = {
+  "8901030": { name: "Amul Taaza Milk (500 ml)", kcal: 60, pro: 3.2, carb: 4.8, fat: 3.2, per: "100 ml", source: "Offline DB" },
+  "8901725": { name: "Britannia Good Day Cookies", kcal: 500, pro: 6.5, carb: 66, fat: 24, per: "100 g", source: "Offline DB" },
+  "8901058": { name: "Maggi 2-Minute Noodles", kcal: 452, pro: 9.5, carb: 62, fat: 18, per: "100 g", source: "Offline DB" },
+  "generic-protein": { name: "Whey protein scoop", kcal: 120, pro: 24, carb: 3, fat: 1.5, per: "30 g scoop", source: "Offline DB" },
+  "generic-banana": { name: "Banana (medium)", kcal: 105, pro: 1.3, carb: 27, fat: 0.4, per: "118 g", source: "Offline DB" },
+  "generic-egg": { name: "Boiled egg (large)", kcal: 78, pro: 6.3, carb: 0.6, fat: 5.3, per: "50 g", source: "Offline DB" },
+  "generic-curd": { name: "Unsweetened curd", kcal: 98, pro: 11, carb: 3.6, fat: 4.3, per: "100 g", source: "Offline DB" }
+};
+
+const Scanner = {
+  stream: null, detector: null, rafId: null, lastCode: null, current: null,
+  async startCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) return toast("This browser does not support camera access.", "error");
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false
+      });
+    } catch { return toast("Camera permission denied or unavailable.", "error"); }
+    let el = $("#scanner-video");
+    if (!el) {
+      el = document.createElement("video");
+      el.id = "scanner-video"; el.setAttribute("playsinline", ""); el.muted = true;
+      el.setAttribute("aria-label", "Live camera preview for barcode scanning");
+      $("#scanner-view").prepend(el);
+    }
+    el.srcObject = this.stream;
+    await el.play().catch(() => {});
+    $("#scanner-placeholder").hidden = true;
+    $("#scan-frame").hidden = false;
+    $("#camera-start").disabled = true; $("#camera-stop").disabled = false;
+    $("#camera-status").textContent = "Camera on";
+    if ("BarcodeDetector" in window) {
+      try {
+        this.detector = new window.BarcodeDetector({ formats: ["ean_13","ean_8","upc_a","upc_e","code_128","qr_code"] });
+        this.scanLoop(el);
+        $("#camera-status").textContent = "Scanning…";
+      } catch { this.detector = null; }
+    } else {
+      $("#camera-status").textContent = "Preview only — type the code";
+    }
+  },
+  scanLoop(video) {
+    const tick = async () => {
+      if (!this.detector || !this.stream) return;
+      try {
+        const codes = await this.detector.detect(video);
+        if (codes.length) {
+          const raw = codes[0].rawValue;
+          if (raw && raw !== this.lastCode) {
+            this.lastCode = raw;
+            $("#barcode-input").value = raw;
+            await lookupBarcode(raw);
+            setTimeout(() => { this.lastCode = null; }, 4000);
+          }
+        }
+      } catch { /* transient */ }
+      this.rafId = requestAnimationFrame(tick);
+    };
+    this.rafId = requestAnimationFrame(tick);
+  },
+  stopCamera() {
+    cancelAnimationFrame(this.rafId); this.rafId = null; this.detector = null;
+    if (this.stream) { this.stream.getTracks().forEach((t) => t.stop()); this.stream = null; }
+    const video = $("#scanner-video"); if (video) video.remove();
+    $("#scanner-placeholder").hidden = false;
+    $("#scan-frame").hidden = true;
+    $("#camera-start").disabled = false; $("#camera-stop").disabled = true;
+    $("#camera-status").textContent = "Camera off";
+  }
+};
+
+async function lookupBarcode(query) {
+  const q = String(query || "").trim();
+  if (!q) return toast("Enter a barcode or product name first.", "warn");
+  const key = q.toLowerCase();
+  if (LOCAL_PRODUCTS[key]) return showScanResult(LOCAL_PRODUCTS[key]);
+
+  if (/^\d{6,14}$/.test(q)) {
+    try {
+      const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(q)}.json?fields=product_name,brands,nutriments,image_small_url`;
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (json.status !== 1 || !json.product) throw new Error("not-found");
+      const p = json.product, n = p.nutriments || {};
+      return showScanResult({
+        name: [p.brands, p.product_name].filter(Boolean).join(" — ") || "Unnamed product",
+        kcal: Math.round(num(n["energy-kcal_100g"])),
+        pro: round1(num(n.proteins_100g)),
+        carb: round1(num(n.carbohydrates_100g)),
+        fat: round1(num(n.fat_100g)),
+        per: "100 g", source: "Open Food Facts", image: p.image_small_url || ""
+      });
+    } catch {
+      toast("Online lookup failed — using offline estimate.", "warn");
+      return showScanResult({ name: `Unknown product (${q})`, kcal: 150, pro: 5, carb: 20, fat: 5, per: "100 g", source: "Estimate" });
+    }
+  }
+
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=1&fields=product_name,brands,nutriments,image_small_url`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const json = await res.json();
+    const p = json.products?.[0];
+    if (!p) throw new Error("no-match");
+    const n = p.nutriments || {};
+    showScanResult({
+      name: [p.brands, p.product_name].filter(Boolean).join(" — ") || q,
+      kcal: Math.round(num(n["energy-kcal_100g"])),
+      pro: round1(num(n.proteins_100g)),
+      carb: round1(num(n.carbohydrates_100g)),
+      fat: round1(num(n.fat_100g)),
+      per: "100 g", source: "Open Food Facts", image: p.image_small_url || ""
+    });
+  } catch { toast("No match found. Try the exact barcode digits.", "error"); }
+}
+
+function showScanResult(product) {
+  Scanner.current = product;
+  $("#scan-result-card").style.display = "block";
+  $("#scan-name").textContent = product.name;
+  $("#scan-details").textContent = `Values per ${product.per}`;
+  $("#scan-source").textContent = product.source || "Unknown";
+  $("#scan-kcal").textContent = product.kcal;
+  $("#scan-pro").textContent = `${product.pro} g`;
+  $("#scan-carb").textContent = `${product.carb} g`;
+  $("#scan-fat").textContent = `${product.fat} g`;
+  const img = $("#scan-image");
+  if (product.image) { img.src = product.image; img.style.display = "block"; img.alt = `Product photo of ${product.name}`; }
+  else { img.style.display = "none"; img.removeAttribute("src"); }
+  $("#scan-result-card").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function initScanner() {
+  $("#camera-start").addEventListener("click", () => Scanner.startCamera());
+  $("#camera-stop").addEventListener("click", () => Scanner.stopCamera());
+  $("#lookup-btn").addEventListener("click", () => lookupBarcode($("#barcode-input").value));
+  $("#barcode-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); lookupBarcode(e.target.value); }
+  });
+  $("#random-scan").addEventListener("click", () => {
+    const keys = Object.keys(LOCAL_PRODUCTS);
+    const pick = keys[Math.floor(Math.random() * keys.length)];
+    $("#barcode-input").value = pick; lookupBarcode(pick);
+  });
+  $("#discard-scan").addEventListener("click", () => {
+    Scanner.current = null;
+    $("#scan-result-card").style.display = "none";
+  });
+  $("#add-scanned").addEventListener("click", () => {
+    const p = Scanner.current; if (!p) return;
+    const grams = clamp(num($("#scan-qty").value) || 100, 1, 5000);
+    const factor = grams / 100;
+    const meal = $("#scan-meal").value;
+    const date = isoDate();
+    const entry = {
+      id: uid(), name: p.name, qty: grams, unit: "g",
+      kcal: Math.round(p.kcal * factor),
+      pro: round1(p.pro * factor),
+      carb: round1(p.carb * factor),
+      fat: round1(p.fat * factor),
+      meal, time: new Date().toTimeString().slice(0, 5)
+    };
+    (Store.data.diary[date] ||= []).push(entry);
+    Store.touch("diary", date);
+    Store.saveNow(); renderDiary(); renderDashboard();
+    toast(`Added ${entry.name} (${grams} g) to ${meal}.`, "success");
+    $("#scan-result-card").style.display = "none";
+    Scanner.current = null;
+  });
+}
+
+/* ------------------------------------------- 11. SAFETY & GLUCOSE LOG */
+const CHECKLIST_ITEMS = [
+  ["hydrated", "Hydrated before leaving work"],
+  ["glucose", "Glucose checked and recorded"],
+  ["tablets", "Glucose tablets in gym bag"],
+  ["warmup", "5–8 min warm-up completed"],
+  ["feet", "Feet checked for blisters or cuts"]
+];
+
+function renderChecklist() {
+  const date = isoDate();
+  const state = Store.data.checklists[date] || {};
+  $("#pre-checklist").innerHTML = CHECKLIST_ITEMS.map(([key, label]) => `
+    <label class="check-row">
+      <input type="checkbox" data-check="${key}" ${state[key] ? "checked" : ""}>
+      <span>${esc(label)}</span>
+    </label>`).join("");
+}
+
+function initSafety() {
+  $("#pre-checklist").addEventListener("change", (e) => {
+    const key = e.target.dataset.check; if (!key) return;
+    const date = isoDate();
+    (Store.data.checklists[date] ||= {})[key] = e.target.checked;
+    Store.touch("checklists", date);
+    Store.save();
+  });
+
+  $("#glucose-add").addEventListener("click", () => {
+    const now = new Date();
+    const id = uid();
+    Store.data.glucose.push({ id, date: isoDate(now), time: now.toTimeString().slice(0, 5), pre: "", post: "", symptoms: "", snack: "", notes: "" });
+    Store.touch("glucose", id);
+    Store.saveNow(); renderGlucoseLog(); renderDashboard();
+    const rows = $$("#glucose-rows tr");
+    rows[rows.length - 1]?.querySelector("input")?.focus();
+  });
+
+  $("#glucose-rows").addEventListener("input", (e) => {
+    const field = e.target.dataset.gfield;
+    const id = e.target.dataset.gid;
+    if (!field || !id) return;
+    const record = Store.data.glucose.find((g) => g.id === id);
+    if (!record) return;
+    record[field] = e.target.value;
+    if (field === "pre" || field === "post") {
+      const v = num(e.target.value);
+      e.target.setAttribute("aria-invalid", String(v > 0 && (v < 54 || v > 400)));
+    }
+    Store.touch("glucose", id);
+    Store.save();
+  });
+
+  $("#glucose-rows").addEventListener("change", () => renderDashboard());
+
+  $("#glucose-rows").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remove-glucose]");
+    if (!btn) return;
+    const id = btn.dataset.removeGlucose;
+    Store.data.glucose = Store.data.glucose.filter((g) => g.id !== id);
+    Store.touch("glucose", id);
+    Store.saveNow(); renderGlucoseLog(); renderDashboard();
+    toast("Reading removed.", "info", 2000);
+  });
+
+  $("#glucose-export").addEventListener("click", () => {
+    if (!Store.data.glucose.length) return toast("No readings to export.", "warn");
+    const rows = [["Date","Time","Pre-gym (mg/dL)","Post-gym (mg/dL)","Symptoms","Pre-workout snack","Notes"],
+      ...Store.data.glucose.map((g) => [g.date, g.time, g.pre, g.post, g.symptoms, g.snack, g.notes])];
+    download(`glucose-log-${isoDate()}.csv`, toCSV(rows), "text/csv");
+    toast("Glucose log exported.", "success");
+  });
+}
+
+function renderGlucoseLog() {
+  const rows = [...Store.data.glucose].sort((a, b) =>
+    (b.date + (b.time || "")).localeCompare(a.date + (a.time || "")));
+  const tbody = $("#glucose-rows");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:26px;">No readings yet. Add a row to start tracking.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map((g) => {
+    const pre = num(g.pre);
+    const low = pre > 0 && pre < 70;
+    return `<tr>
+      <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--text);padding-left:12px;white-space:nowrap;">${esc(prettyDate(g.date))}</th>
+      <td><input type="time" value="${esc(g.time || "")}" data-gfield="time" data-gid="${esc(g.id)}" aria-label="Time for reading on ${esc(g.date)}" style="min-width:110px;"></td>
+      <td><input type="number" inputmode="numeric" min="20" max="600" value="${esc(g.pre)}" placeholder="—" data-gfield="pre" data-gid="${esc(g.id)}" aria-label="Pre-gym glucose on ${esc(g.date)}" style="min-width:78px;${low ? "border-color:var(--danger);" : ""}"></td>
+      <td><input type="number" inputmode="numeric" min="20" max="600" value="${esc(g.post)}" placeholder="—" data-gfield="post" data-gid="${esc(g.id)}" aria-label="Post-gym glucose on ${esc(g.date)}" style="min-width:78px;"></td>
+      <td><input type="text" value="${esc(g.symptoms)}" placeholder="—" data-gfield="symptoms" data-gid="${esc(g.id)}" aria-label="Symptoms on ${esc(g.date)}" style="min-width:110px;"></td>
+      <td><input type="text" value="${esc(g.snack)}" placeholder="—" data-gfield="snack" data-gid="${esc(g.id)}" aria-label="Pre-workout snack on ${esc(g.date)}" style="min-width:130px;"></td>
+      <td><input type="text" value="${esc(g.notes)}" placeholder="—" data-gfield="notes" data-gid="${esc(g.id)}" aria-label="Notes on ${esc(g.date)}" style="min-width:150px;"></td>
+      <td class="num"><button class="btn btn-ghost btn-sm" type="button" data-remove-glucose="${esc(g.id)}" aria-label="Delete reading from ${esc(g.date)}">✕</button></td>
+    </tr>`;
+  }).join("");
+}
+
+/* --------------------------------------------------------- 12. PROGRESS */
+const SCORECARD_FIELDS = [
+  ["sessions", "Gym sessions (/6)", "text"],
+  ["steps", "Average steps", "text"],
+  ["waist", "Waist at navel (cm)", "text"],
+  ["weight", "Average morning weight (kg)", "text"],
+  ["glucoseNotes", "Pre-gym glucose notes", "text"],
+  ["strength", "Best strength improvement", "text"]
+];
+
+function renderScorecard() {
+  const sc = Store.data.scorecard;
+  $("#scorecard-body").innerHTML = SCORECARD_FIELDS.map(([key, label, type]) => `
+    <tr>
+      <th scope="row" style="background:transparent;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;color:var(--text);padding-left:12px;">${esc(label)}</th>
+      ${[1,2,3,4].map((w) => `
+        <td><input type="${type}" value="${esc(sc[w]?.[key] ?? "")}" data-week="${w}" data-metric="${key}" aria-label="${esc(label)} for week ${w}" style="min-width:90px;"></td>`).join("")}
+    </tr>`).join("");
+  renderWeightChart();
+}
+
+function renderWeightChart() {
+  const host = $("#weight-chart");
+  const asTable = $("#weight-chart-toggle").getAttribute("aria-pressed") === "true";
+  const points = [1,2,3,4].map((w) => ({ label: `Week ${w}`, value: num(Store.data.scorecard[w]?.weight) })).filter((p) => p.value > 0);
+  if (!points.length) { host.innerHTML = `<div class="chart-empty">Enter a weekly morning weight above to see your trend.</div>`; return; }
+  if (asTable) {
+    host.innerHTML = `<div class="table-wrap"><table><caption class="sr-only">Weekly average morning weight</caption>
+      <thead><tr><th scope="col">Week</th><th scope="col" class="num">Weight (kg)</th></tr></thead>
+      <tbody>${points.map((p) => `<tr><td>${esc(p.label)}</td><td class="num">${p.value}</td></tr>`).join("")}</tbody>
+    </table></div>`;
+    return;
+  }
+  host.innerHTML = buildLineChart(points, { ariaLabel: `Weight trend: ${points.map((p) => `${p.label} ${p.value} kilograms`).join(", ")}.` });
+}
+
+function initProgress() {
+  $("#scorecard-body").addEventListener("input", (e) => {
+    const { week, metric } = e.target.dataset;
+    if (!week || !metric) return;
+    (Store.data.scorecard[week] ||= {})[metric] = e.target.value;
+    Store.touch("scorecard", week);
+    Store.save();
+  });
+  $("#scorecard-body").addEventListener("change", (e) => {
+    if (e.target.dataset.metric === "weight") renderWeightChart();
+  });
+  const toggle = (btnSel, renderFn) => {
+    const btn = $(btnSel);
+    btn.addEventListener("click", () => {
+      const on = btn.getAttribute("aria-pressed") === "true";
+      btn.setAttribute("aria-pressed", String(!on));
+      btn.textContent = on ? "View as table" : "View as chart";
+      renderFn();
+    });
+  };
+  toggle("#weight-chart-toggle", renderWeightChart);
+  toggle("#dash-chart-toggle", renderDashboard);
+  $("#scorecard-export").addEventListener("click", () => {
+    const rows = [["Metric","Week 1","Week 2","Week 3","Week 4"]];
+    SCORECARD_FIELDS.forEach(([key, label]) => {
+      rows.push([label, ...[1,2,3,4].map((w) => Store.data.scorecard[w]?.[key] ?? "")]);
+    });
+    download(`scorecard-${isoDate()}.csv`, toCSV(rows), "text/csv");
+    toast("Scorecard exported.", "success");
+  });
+}
+
+/* ============================ 13. SYNC MANAGER ============================ */
+/* Firebase Realtime Database adapter with real-time two-way sync.
+   - Dynamic ESM import of the Firebase SDK so first load stays fast
+   - Per-record / per-collection timestamps for deterministic merges
+   - Debounced pushes; idempotent merges prevent feedback loops
+   - Status pill in the topbar reflects connection state
+*/
+const Sync = (function () {
+  const SDK_VERSION = "10.12.2";
+  const BASE = `https://www.gstatic.com/firebasejs/${SDK_VERSION}`;
+
+  let app = null, db = null, stateRef = null, unsubscribe = null;
+  let pushTimer = null, lastPushJson = "", connecting = false;
+  let status = "off", lastSyncedAt = 0, lastError = "";
+  let firebaseMods = null;
+
+  function getConfig() {
+    try { return JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || "null") || { enabled: false }; }
+    catch { return { enabled: false }; }
+  }
+  function setConfig(cfg) { localStorage.setItem(SYNC_CFG_KEY, JSON.stringify(cfg)); }
+
+  function setStatus(s, error) {
+    status = s;
+    if (error) lastError = error;
+    const pill = $("#sync-pill"), label = $("#sync-label"), detail = $("#sync-status-detail"), text = $("#sync-status-text");
+    if (!pill) return;
+    pill.dataset.state = s;
+    const labels = { off: "Not configured", connecting: "Connecting…", synced: "Synced", syncing: "Syncing…", error: "Sync error", offline: "Offline" };
+    label.textContent = labels[s] || s;
+    if (text) text.textContent = labels[s] || s;
+    if (detail) {
+      if (s === "synced" && lastSyncedAt) detail.textContent = `Last sync: ${new Date(lastSyncedAt).toLocaleTimeString()}`;
+      else if (s === "error") detail.textContent = lastError || "Check your Firebase config and rules.";
+      else if (s === "off") detail.textContent = "Enable sync below to share data across devices.";
+      else detail.textContent = "";
+    }
+  }
+
+  /* -------------------------------------------------- MERGE ALGORITHM */
+  /* Deterministic merge — same result regardless of which device runs it.
+     Strategy: for each collection/record, take the side with the newer timestamp. */
+  function mergeStates(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    const out = structuredClone(a);
+    out._sync = out._sync || {};
+    const as = a._sync || {}, bs = b._sync || {};
+
+    // Whole-collection LWW
+    if ((bs.settings || 0) > (as.settings || 0)) { out.settings = b.settings; out._sync.settings = bs.settings; }
+    if ((bs.meds || 0) > (as.meds || 0)) { out.meds = b.meds; out._sync.meds = bs.meds; }
+
+    // Date-keyed maps
+    for (const key of ["diary", "workouts", "water", "checklists"]) {
+      out[key] = out[key] || {};
+      out._sync[key] = out._sync[key] || {};
+      const localMap = as[key] || {}, remoteMap = bs[key] || {};
+      const dates = new Set([...Object.keys(a[key] || {}), ...Object.keys(b[key] || {})]);
+      for (const date of dates) {
+        const lt = localMap[date] || 0, rt = remoteMap[date] || 0;
+        if (rt > lt) {
+          if (date in (b[key] || {})) out[key][date] = b[key][date];
+          else delete out[key][date];
+          out._sync[key][date] = rt;
+        } else {
+          if (date in (a[key] || {})) out[key][date] = a[key][date];
+          else delete out[key][date];
+          out._sync[key][date] = lt;
+        }
+      }
+    }
+
+    // Glucose — array of records keyed by id
+    out.glucose = []; out._sync.glucose = {};
+    const byId = new Map();
+    (a.glucose || []).forEach((g) => byId.set(g.id, { rec: g, ts: as.glucose?.[g.id] || 0 }));
+    (b.glucose || []).forEach((g) => {
+      const rt = bs.glucose?.[g.id] || 0;
+      const cur = byId.get(g.id);
+      if (!cur || rt > cur.ts) byId.set(g.id, { rec: g, ts: rt });
+    });
+    for (const [id, { rec, ts }] of byId) {
+      out.glucose.push(rec);
+      out._sync.glucose[id] = ts;
+    }
+    out.glucose.sort((x, y) => (x.date + (x.time || "")).localeCompare(y.date + (y.time || "")));
+
+    // Scorecard — whole week LWW
+    out.scorecard = {}; out._sync.scorecard = {};
+    for (let w = 1; w <= 4; w++) {
+      const lt = as.scorecard?.[w] || 0, rt = bs.scorecard?.[w] || 0;
+      if (rt > lt) { out.scorecard[w] = b.scorecard?.[w] || {}; out._sync.scorecard[w] = rt; }
+      else { out.scorecard[w] = a.scorecard?.[w] || {}; out._sync.scorecard[w] = lt; }
+    }
+
+    // Preserve local device id
+    out._sync.deviceId = a._sync?.deviceId || b._sync?.deviceId || uid();
+    return out;
+  }
+
+  /* --------------------------------------------------------- ADAPTER */
+  async function loadFirebase() {
+    if (firebaseMods) return firebaseMods;
+    const [appMod, dbMod] = await Promise.all([
+      import(`${BASE}/firebase-app.js`),
+      import(`${BASE}/firebase-database.js`)
+    ]);
+    firebaseMods = { appMod, dbMod };
+    return firebaseMods;
+  }
+
+  async function connect() {
+    const cfg = getConfig();
+    if (!cfg.enabled || !cfg.firebaseConfig || !cfg.roomCode) {
+      setStatus("off");
+      return false;
+    }
+    if (connecting) return false;
+    connecting = true;
+    setStatus("connecting");
+
+    try {
+      const { appMod, dbMod } = await loadFirebase();
+      app = appMod.initializeApp(cfg.firebaseConfig, `clay-${cfg.roomCode}`);
+      db = dbMod.getDatabase(app);
+      stateRef = dbMod.ref(db, `clay-rooms/${cfg.roomCode}/state`);
+
+      // Initial pull + merge + push if needed
+      const snap = await dbMod.get(stateRef);
+      const remote = snap.exists() ? snap.val() : null;
+      const merged = remote ? mergeStates(Store.data, remote) : Store.data;
+      const mergedJson = JSON.stringify(merged);
+      const remoteJson = remote ? JSON.stringify(remote) : "";
+
+      if (mergedJson !== JSON.stringify(Store.data)) {
+        Store.data = merged;
+        Store.saveNow();
+        renderAll();
+      }
+      if (!remote || mergedJson !== remoteJson) {
+        await dbMod.set(stateRef, JSON.parse(mergedJson));
+      }
+      lastPushJson = mergedJson;
+      lastSyncedAt = Date.now();
+      setStatus("synced");
+
+      // Real-time listener
+      unsubscribe = dbMod.onValue(stateRef, (s) => {
+        const r = s.val();
+        if (!r) return;
+        const rJson = JSON.stringify(r);
+        if (rJson === lastPushJson) return; // our own echo
+        const mergedNow = mergeStates(Store.data, r);
+        const nowJson = JSON.stringify(mergedNow);
+        if (nowJson !== JSON.stringify(Store.data)) {
+          Store.data = mergedNow;
+          localStorage.setItem(STORAGE_KEY, nowJson);
+          renderAll();
+          toast("Updated from another device.", "info", 2600);
+        }
+        lastSyncedAt = Date.now();
+        setStatus("synced");
+      }, (err) => {
+        console.error("Firebase listener error", err);
+        setStatus("error", err.message || String(err));
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Sync connect failed", err);
+      setStatus("error", err.message || String(err));
+      return false;
+    } finally {
+      connecting = false;
+    }
+  }
+
+  function disconnect() {
+    if (unsubscribe) { try { unsubscribe(); } catch {} unsubscribe = null; }
+    stateRef = null; db = null; app = null;
+    setStatus("off");
+  }
+
+  async function pushNow() {
+    const cfg = getConfig();
+    if (!cfg.enabled || !stateRef) return;
+    const json = JSON.stringify(Store.data);
+    if (json === lastPushJson) return;
+    setStatus("syncing");
+    try {
+      const { dbMod } = await loadFirebase();
+      await dbMod.set(stateRef, Store.data);
+      lastPushJson = json;
+      lastSyncedAt = Date.now();
+      setStatus("synced");
+    } catch (err) {
+      console.error("Push failed", err);
+      setStatus("error", err.message || String(err));
+    }
+  }
+
+  function schedulePush() {
+    const cfg = getConfig();
+    if (!cfg.enabled || !stateRef) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushNow, 1500);
+  }
+
+  function init() {
+    const cfg = getConfig();
+    if (cfg.enabled) connect();
+
+    // Reconnect when network comes back
+    window.addEventListener("online", () => { if (getConfig().enabled) connect(); });
+    window.addEventListener("offline", () => { if (getConfig().enabled) setStatus("offline"); });
+
+    // Sync when tab regains focus
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && getConfig().enabled && stateRef) {
+        pushNow();
+      }
+    });
+
+    // Click the status pill to open the settings dialog
+    $("#sync-pill").addEventListener("click", () => openDataDialog());
+  }
+
+  /* ------------------------------------------- PUBLIC API (attach to window) */
+  const api = {
+    init, connect, disconnect, pushNow, schedulePush,
+    getStatus: () => status,
+    getConfig, setConfig,
+    mergeStates,
+    isEnabled: () => !!getConfig().enabled
+  };
+  window.Sync = api;
+  return api;
+})();
+
+/* -------------------------------------------------- 14. DATA DIALOG */
+function openDataDialog() {
+  const dlg = $("#data-dialog");
+  if (!dlg.open) dlg.showModal();
+}
+
+function initDialog() {
+  const dlg = $("#data-dialog");
+  const cfg = Sync.getConfig();
+
+  const syncUI = () => {
+    const c = Sync.getConfig();
+    $("#set-kcal").value = settings().kcalTarget;
+    $("#set-protein").value = settings().proteinTarget;
+    $("#set-steps").value = settings().stepTarget;
+    $("#set-sessions").value = settings().sessionsTarget;
+    if (c.firebaseConfig) {
+      try { $("#sync-config").value = JSON.stringify(c.firebaseConfig, null, 2); } catch { $("#sync-config").value = ""; }
+    }
+    $("#sync-room").value = c.roomCode || "";
+    $("#sync-status-text").textContent = Sync.getStatus();
+  };
+
+  $("#open-data").addEventListener("click", () => { syncUI(); openDataDialog(); });
+  $$("[data-close-dialog]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+
+  const bindSetting = (sel, key, min, max) => {
+    $(sel).addEventListener("change", (e) => {
+      const v = clamp(num(e.target.value), min, max);
+      settings()[key] = v;
+      e.target.value = v;
+      Store.touch("settings");
+      Store.save();
+      renderDashboard(); renderDiary();
+    });
+  };
+  bindSetting("#set-kcal", "kcalTarget", 1000, 5000);
+  bindSetting("#set-protein", "proteinTarget", 40, 300);
+  bindSetting("#set-steps", "stepTarget", 1000, 30000);
+  bindSetting("#set-sessions", "sessionsTarget", 1, 7);
+
+  // Sync: generate room code
+  $("#sync-room-generate").addEventListener("click", () => {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    const code = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+    $("#sync-room").value = code;
+  });
+
+  // Sync: copy room code
+  $("#sync-room-copy").addEventListener("click", async () => {
+    const code = $("#sync-room").value.trim();
+    if (!code) return toast("Generate a room code first.", "warn");
+    try {
+      await navigator.clipboard.writeText(code);
+      toast("Room code copied.", "success");
+    } catch {
+      toast("Could not copy — long-press the field to select.", "warn");
+    }
+  });
+
+  // Sync: connect
+  $("#sync-connect").addEventListener("click", async () => {
+    const raw = $("#sync-config").value.trim();
+    const room = $("#sync-room").value.trim();
+    if (!raw) return toast("Paste your Firebase config first.", "warn");
+    if (!room) return toast("Generate or enter a room code first.", "warn");
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch { return toast("That Firebase config is not valid JSON.", "error"); }
+    if (!parsed.databaseURL) return toast("Firebase config is missing databaseURL.", "error");
+
+    Sync.setConfig({ enabled: true, firebaseConfig: parsed, roomCode: room });
+    const ok = await Sync.connect();
+    if (ok) toast("Sync connected.", "success");
+    syncUI();
+  });
+
+  // Sync: sync now
+  $("#sync-now").addEventListener("click", async () => {
+    if (!Sync.isEnabled()) return toast("Enable sync first.", "warn");
+    await Sync.pushNow();
+    toast("Sync requested.", "info", 1500);
+  });
+
+  // Sync: disconnect
+  $("#sync-disconnect").addEventListener("click", () => {
+    if (!confirm("Disconnect sync on this device? Your local data stays.")) return;
+    Sync.setConfig({ enabled: false });
+    Sync.disconnect();
+    toast("Sync disabled on this device.", "info");
+    syncUI();
+  });
+
+  // Backup / restore
+  $("#export-json").addEventListener("click", () => {
+    download(`clay-health-backup-${isoDate()}.json`, JSON.stringify(Store.data, null, 2), "application/json");
+    toast("Backup downloaded.", "success");
+  });
+  $("#import-json").addEventListener("click", () => $("#import-file").click());
+  $("#import-file").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      Store.data = Store.migrate(parsed);
+      Store.saveNow();
+      renderAll();
+      toast("Backup imported successfully.", "success");
+      dlg.close();
+    } catch { toast("That file could not be read as a valid backup.", "error"); }
+    finally { e.target.value = ""; }
+  });
+
+  $("#reset-all").addEventListener("click", () => {
+    if (!confirm("Erase all saved data? This cannot be undone.")) return;
+    Store.reset();
+    renderAll();
+    toast("All data erased.", "warn");
+    dlg.close();
+  });
+}
+
+/* -------------------------------------------------- 15. PWA MANIFEST */
+function injectManifest() {
+  const manifest = {
+    name: "Clay's Health Hub",
+    short_name: "Clay Health",
+    start_url: ".",
+    scope: ".",
+    display: "standalone",
+    orientation: "portrait-primary",
+    background_color: "#f5f7fb",
+    theme_color: "#4f46e5",
+    icons: [
+      { src: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="192" height="192" rx="40" fill="url(#g)"/><text x="96" y="126" font-family="system-ui,sans-serif" font-size="96" font-weight="800" fill="#fff" text-anchor="middle">CH</text></svg>'),
+        sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+      { src: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="512" height="512" rx="106" fill="url(#g)"/><text x="256" y="336" font-family="system-ui,sans-serif" font-size="256" font-weight="800" fill="#fff" text-anchor="middle">CH</text></svg>'),
+        sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = url;
+  document.head.appendChild(link);
+
+  // Apple touch icon
+  const icon = document.createElement("link");
+  icon.rel = "apple-touch-icon";
+  icon.href = manifest.icons[0].src;
+  document.head.appendChild(icon);
+}
+
+/* --------------------------------------------------------- 16. INIT */
+function initDashboard() {
+  const input = $("#dash-glucose");
+  const save = () => {
+    const v = num(input.value);
+    if (!v) return toast("Enter a glucose value first.", "warn");
+    if (v < 20 || v > 600) return toast("That value looks out of range — check the units.", "error");
+    const now = new Date();
+    const id = uid();
+    Store.data.glucose.push({ id, date: isoDate(now), time: now.toTimeString().slice(0, 5), pre: String(v), post: "", symptoms: "", snack: "", notes: "Logged from dashboard" });
+    Store.touch("glucose", id);
+    Store.saveNow(); input.value = "";
+    renderDashboard(); renderGlucoseLog();
+    if (v < 70) toast("Low reading — treat with 15–20 g fast glucose and do NOT train.", "error", 9000);
+    else toast(`Reading saved: ${v} mg/dL.`, "success");
+  };
+  $("#dash-save-glucose").addEventListener("click", save);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); save(); } });
+}
+
+function renderAll() {
+  renderDashboard(); renderWorkouts(); renderMealDay(); renderDiary();
+  renderChecklist(); renderGlucoseLog(); renderScorecard();
+}
+
+function initClock() {
+  const el = $("#clock");
+  const tick = () => { el.textContent = new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }); };
+  tick(); setInterval(tick, 30000);
+}
+
+function initKeyboardShortcuts() {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      showSection("scanner");
+      setTimeout(() => $("#barcode-input").focus(), 80);
+    }
+    if (e.key === "Escape") RestTimer.stop();
+  });
+}
+
+function init() {
+  Store.load();
+  initTheme();
+  injectManifest();
+  initDialog();
+  initNav();
+  RestTimer.init();
+  initDashboard();
+  initWorkouts();
+  initMeals();
+  initDiary();
+  initScanner();
+  initSafety();
+  initProgress();
+  initClock();
+  initKeyboardShortcuts();
+
+  const plan = DAY_PLAN[new Date().getDay()];
+  if (plan.key && WORKOUTS[plan.key]) $("#workout-selector").value = plan.key;
+
+  renderAll();
+  Sync.init();
+
+  const initial = location.hash.slice(1);
+  showSection(SECTIONS.includes(initial) ? initial : "dashboard", { focus: false, updateHash: false });
+
+  // Day rollover check
+  let currentDay = isoDate();
+  setInterval(() => {
+    const now = isoDate();
+    if (now !== currentDay) {
+      currentDay = now; renderAll();
+      toast("New day — views refreshed.", "info");
+    }
+  }, 60000);
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
