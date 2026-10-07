@@ -172,36 +172,37 @@ pullB:{n:'Pull B',t:'Pull B — back + arms',cd:'10–15 min easy to moderate af
 legsB:{n:'Legs B',t:'Legs B + core — conditioning',cd:'20–30 min brisk cardio after lifting. Bike or elliptical if legs are spent.',ex:[['Goblet squat or hack squat',3,'8–12','2–3 RIR',120],['Hip thrust / glute bridge',3,'8–12','2 RIR',120],['Walking lunge or split squat',2,'8–10/leg','2–3 RIR',90],['Seated / lying leg curl',3,'10–15','2 RIR',75],['Seated calf raise',3,'12–15','2 RIR',75],['Cable crunch',3,'10–15','2 RIR',75],['Pallof press',2,'10–12/side','Controlled',60]]}};
 const DAY=[{l:'Recovery',k:null,h:'Rest, mobility, optional 20–30 min walk'},{l:'Push A',k:'pushA',h:'Chest, shoulders, triceps'},{l:'Pull A',k:'pullA',h:'Back, biceps, posture'},{l:'Legs A',k:'legsA',h:'Leg mass + metabolic'},{l:'Push B',k:'pushB',h:'Upper-body hypertrophy'},{l:'Pull B',k:'pullB',h:'Back + arms'},{l:'Legs B + core',k:'legsB',h:'Legs + conditioning'}];
 const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const M=['Poha + 2 eggs|Milk coffee + 10 almonds|Banana + curd|Chicken curry + 2 small rotis + salad + curd|Paneer bhurji + vegetables',
-'2 moong-dal chilla + curd|Milk coffee + 1 boiled egg|Apple + 2 eggs|Fish + ¾ cup rice + vegetables|Dal + paneer + salad + 1 roti',
-'Vegetable upma + 3 eggs|Milk coffee + 10 peanuts|Small banana + curd|Chicken tikka + 2 rotis + salad|Egg bhurji + sautéed vegetables + 1 roti',
-'2 dosa + sambar + 2 eggs|Milk coffee + curd|Guava + 2 eggs|Fish curry + 2 rotis + vegetables|Paneer + mixed veg + dal',
-'2 small paratha + curd + 2 eggs|Milk coffee + 10 almonds|Apple + curd|Chicken + 1 cup rice + large salad|Dal + egg curry + vegetables',
-'Besan chilla + paneer stuffing|Milk coffee + 1 egg|Banana + curd|Lean buff/lamb curry + 2 rotis + salad|Chicken soup + paneer/egg salad',
-'Egg omelette + 1–2 rotis + vegetables|Milk coffee + curd|Fruit + 2 eggs|Chicken biryani (measured 1 cup) + raita + salad|Grilled fish + vegetables',
-'Poha + paneer/curd|Milk coffee + nuts|Apple + 2 eggs|Chicken + 2 rotis + dal + salad|Paneer tikka + vegetables',
-'2 idli + sambar + 3 eggs|Milk coffee + curd|Small banana + curd|Fish + rice + vegetables|Egg curry + 1 roti + salad',
-'Moong chilla + 2 eggs|Milk coffee + almonds|Guava + 2 eggs|Chicken curry + 2 rotis + salad|Dal + paneer + vegetables',
-'Vegetable upma + 3 eggs|Milk coffee + curd|Apple + 10 peanuts|Fish curry + 2 rotis + vegetables|Chicken salad + curd',
-'2 dosa + sambar + 2 eggs|Milk coffee + 1 egg|Banana + curd|Chicken tikka + rice + salad|Paneer bhurji + dal + vegetables',
-'2 small paratha + curd + eggs|Milk coffee + almonds|Orange + 2 eggs|Lean buff/lamb + 2 rotis + salad|Fish + vegetables',
-'Besan chilla + curd + eggs|Milk coffee + nuts|Apple + curd|Chicken + 2 rotis + vegetables|Egg bhurji + dal + salad',
-'Omelette + 1 roti + vegetables|Milk coffee + curd|Banana + 2 eggs|Fish + rice + vegetables|Paneer tikka + salad',
-'Poha + 2 eggs + curd|Milk coffee + almonds|Guava + 2 eggs|Chicken curry + 2 rotis + salad|Dal + paneer + vegetables',
-'Moong chilla + paneer + curd|Milk coffee + egg|Apple + curd|Fish + 1 cup rice + vegetables|Chicken soup + 1 roti + salad',
-'Idli + sambar + eggs|Milk coffee + almonds|Banana + curd|Chicken tikka + 2 rotis + salad|Paneer + vegetables + dal',
-'Upma + 3 eggs|Milk coffee + curd|Orange + 2 eggs|Lean lamb/buff + 2 rotis + salad|Fish + vegetables',
-'Dosa + sambar + eggs|Milk coffee + nuts|Apple + curd|Chicken + rice + salad|Egg curry + vegetables',
-'Paratha + curd + eggs|Milk coffee + 1 egg|Banana + curd|Fish curry + 2 rotis + vegetables|Paneer bhurji + salad',
-'Besan chilla + eggs|Milk coffee + almonds|Guava + 2 eggs|Chicken + dal + 2 rotis + salad|Fish + vegetables',
-'Omelette + 2 small rotis + veg|Milk coffee + curd|Apple + 2 eggs|Chicken biryani (measured 1 cup) + raita + salad|Dal + paneer + vegetables',
-'Poha + paneer/curd + eggs|Milk coffee + nuts|Banana + curd|Fish + rice + vegetables|Chicken salad + 1 roti',
-'Moong chilla + curd + eggs|Milk coffee + almond|Orange + 2 eggs|Chicken curry + 2 rotis + salad|Paneer + dal + vegetables',
-'Idli + sambar + eggs|Milk coffee + curd|Apple + 2 eggs|Lean buff/lamb + 2 rotis + salad|Fish + vegetables',
-'Upma + eggs + curd|Milk coffee + nuts|Banana + curd|Chicken tikka + rice + salad|Egg bhurji + dal + vegetables',
-'Dosa + sambar + eggs|Milk coffee + 1 egg|Guava + curd|Fish curry + 2 rotis + salad|Paneer tikka + vegetables',
-'Paratha + curd + eggs|Milk coffee + almonds|Apple + 2 eggs|Chicken + 2 rotis + vegetables|Dal + egg curry + salad',
-'Egg omelette + vegetables + 1 roti|Milk coffee + curd|Banana + 2 eggs|Chicken/fish + rice + vegetables|Paneer + vegetables + curd'];
+const M=['Moong dal chilla (2) + mint curd|Greek yogurt + 10 almonds|Banana + 2 boiled eggs|Chicken curry + 2 small rotis + cucumber salad + curd|Paneer bhurji + sautéed vegetables',
+'Veg omelette (3 eggs) + 1 multigrain toast|Buttermilk + 30 g roasted chana|Apple + curd|Grilled fish + ¾ cup rice + stir-fried vegetables|Dal tadka + paneer tikka + salad',
+'Besan chilla stuffed with paneer + green chutney|Boiled egg + cucumber slices|Small banana + curd|Chicken tikka + 2 rotis + kachumber salad|Egg bhurji + sautéed beans + 1 roti',
+'Vegetable upma + 2 boiled eggs|Roasted makhana (30 g)|Guava + 10 peanuts|Fish curry + 2 rotis + sautéed vegetables|Chicken soup + paneer/egg salad',
+'Ragi dosa (2) + sambar + 1 boiled egg|Plain curd + 1 tbsp chia seeds|Orange + 2 boiled eggs|Lean lamb/buff curry (150 g) + 2 rotis + salad|Dal + stir-fried cabbage + 1 roti',
+'Egg bhurji + 1 roti + sautéed spinach|Apple + 8 almonds|Banana + curd|Chicken biryani (measured 1 cup) + raita + salad|Grilled paneer + vegetables',
+'2 idli + sambar + 3-egg-white scramble|Sprouts chaat|Papaya + 2 eggs|Fish + ¾ cup rice + vegetables|Egg curry + 1 roti + salad',
+'Vegetable masala oats + 2 boiled eggs|Paneer cubes (50 g) + cucumber|Guava + curd|Chicken + 2 rotis + dal + salad|Fish tikka + sautéed vegetables',
+'Poha with peanuts + 2 eggs + curd|Buttermilk + 10 almonds|Apple + 2 eggs|Tandoori chicken + 1 cup khichdi + salad|Paneer tikka + vegetables',
+'Paneer-stuffed paratha (1) + curd + cucumber|Boiled egg + 5 walnut halves|Small banana + curd|Fish curry + 2 rotis + vegetables|Egg drop soup + chicken salad',
+'Sprouts moong salad + 2 boiled eggs + 1 toast|Greek yogurt + 1 tsp flaxseed|Orange + 10 peanuts|Chicken keema + 2 rotis + salad|Dal + paneer bhurji + vegetables',
+'Masala omelette + 2 small rotis + tomato|Roasted chana (30 g) + black tea|Banana + curd|Fish + 1 cup rice + dal + salad|Grilled chicken + stir-fried vegetables',
+'Besan chilla + curd + 1 egg|Apple + 8 almonds|Papaya + 2 eggs|Lean buff/lamb + 2 rotis + salad|Fish + sautéed vegetables',
+'Dalia (broken wheat) vegetable porridge + 2 eggs|Sprouts + lemon + cucumber|Guava + curd|Chicken curry + 2 rotis + cabbage salad|Paneer + mixed veg + 1 roti',
+'Egg white omelette + 1 multigrain toast + cucumber|Buttermilk|Banana + 2 eggs|Grilled fish + ¾ cup rice + vegetables|Dal + egg curry + salad',
+'Moong dal chilla (2) + paneer + curd|Roasted makhana (30 g)|Apple + curd|Chicken tikka + 2 rotis + salad|Chicken soup + 1 roti + vegetables',
+'Vegetable uttapam (2) + sambar + 1 egg|Greek yogurt + 5 walnut halves|Orange + 2 boiled eggs|Fish curry + 2 rotis + vegetables|Paneer bhurji + dal + salad',
+'Scrambled eggs (3) + sautéed mushrooms + 1 toast|Boiled egg + cucumber|Small banana + curd|Chicken biryani (measured 1 cup) + raita + salad|Grilled fish + vegetables',
+'Ragi porridge (savoury) + 2 boiled eggs|Plain curd + chia|Guava + 10 peanuts|Lean lamb/buff curry + 2 rotis + salad|Dal + paneer + stir-fried greens',
+'2 idli + sambar + chutney + 2 eggs|Roasted chana (30 g)|Apple + 2 eggs|Chicken + dal + 2 rotis + salad|Egg bhurji + vegetables',
+'Methi paratha (1) + curd + 2 boiled eggs|Buttermilk + 10 almonds|Banana + curd|Fish + rice (¾ cup) + vegetables|Paneer tikka + salad',
+'Poha + paneer cubes + curd|Sprouts chaat|Papaya + 2 eggs|Chicken curry + 2 rotis + cucumber salad|Fish soup + egg salad',
+'Veg cheela (besan + oats) + mint curd|Greek yogurt + 8 almonds|Orange + 2 boiled eggs|Tandoori chicken + 1 roti + dal + salad|Paneer bhurji + sautéed vegetables',
+'Omelette (3 eggs) + 1 roti + vegetables|Roasted makhana (30 g)|Guava + curd|Fish curry + 2 rotis + vegetables|Chicken salad + curd',
+'Upma + 2 boiled eggs + curd|Paneer cubes (50 g) + cucumber|Banana + 2 eggs|Lean buff/lamb + 2 rotis + salad|Dal + egg curry + vegetables',
+'Ragi dosa (2) + sambar + 1 egg|Buttermilk + roasted chana (30 g)|Apple + curd|Chicken tikka + 1 cup khichdi + salad|Grilled fish + vegetables',
+'Moong chilla + 2 boiled eggs|Boiled egg + 5 walnut halves|Papaya + 10 peanuts|Fish + 1 cup rice + dal + salad|Paneer + mixed veg + 1 roti',
+'Besan chilla + paneer + curd|Apple + 8 almonds|Small banana + curd|Chicken curry + 2 rotis + salad|Egg bhurji + dal + vegetables',
+'Vegetable oats upma + 3 eggs|Plain curd + 1 tbsp chia|Orange + 2 eggs|Chicken/fish + ¾ cup rice + vegetables|Paneer + vegetables + curd',
+'Paneer bhurji wrap (1 roti) + cucumber|Roasted chana (30 g)|Apple + 2 eggs|Chicken tikka + 2 rotis + salad|Grilled fish + sautéed vegetables',
+'Egg omelette + 1 multigrain toast + sautéed greens|Greek yogurt + 10 almonds|Banana + curd|Grilled fish + 2 rotis + vegetables|Chicken soup + paneer salad'];
 const GEN={egg:['Egg, boiled',155,12.6,1.1,10.6],banana:['Banana',89,1.1,22.8,.3],curd:['Plain curd',98,11,3.6,4.3],paneer:['Paneer',265,18,1.2,21],chicken:['Chicken breast, cooked',165,31,0,3.6],almond:['Almonds',579,21,22,50],chana:['Roasted chana',364,19,61,6],apple:['Apple',52,.3,14,.2]};
 const MEALS=['Breakfast','Mid-morning','Pre-workout','Lunch','Dinner','Snack'];
 const CK=[['hyd','Hydrated before leaving work'],['glu','Glucose checked and recorded'],['tab','Glucose tablets in gym bag'],['wu','5–8 min warm-up done'],['feet','Feet checked for blisters or cuts']];
@@ -232,7 +233,7 @@ let lm='';if(limit!=null&&limit>=lo&&limit<=hi){const ty=y(limit).toFixed(1);lm=
 return `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">${g}${lm}<path class="ar" d="${ar}"/><path class="ln" d="${ln}"/>${dots}${xl}</svg>`}
 
 /* ---------- state ---------- */
-let tab='home',ft='diary',dd=iso(),pday=cl(new Date().getDate(),1,30),pend=0,curDay=iso();
+let tab='home',ft='diary',dd=iso(),pday=cl(new Date().getDate(),1,M.length),pend=0,curDay=iso();
 let rt=DAY[new Date().getDay()].k||'pushA';
 const cam={s:null,det:null,raf:0,last:null,res:null};
 const stat=(l,v,s='')=>`<div class="st"><span>${esc(l)}</span><b>${v}</b><span>${esc(s)}</span></div>`;
@@ -292,7 +293,7 @@ ${by[m].map(e=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid
 
 function plan(){
 const m=M[pday-1].split('|'),sl=[['🌅 Breakfast','6:15–6:30 AM','Plus sugar-free milk tea at 4:15 AM'],['☕ Mid-morning','10:00 AM',''],['🍌 Pre-workout','12:45–1:00 PM','Optional — based on glucose and energy'],['🍗 Post-workout lunch','3:00–3:30 PM',''],['🌙 Dinner','6:30–7:30 PM','Medicines as prescribed by your clinician']];
-return `<div class="al in"><b>Rules:</b> ~2,000–2,200 kcal · 120–140 g protein · protein at every meal · vegetables twice a day · no liquid calories · pair poha/upma/dosa with eggs, curd or paneer.</div>
+return `<div class="al in"><b>Rules:</b> 31-day rotation matched to the date · ~2,000–2,200 kcal · 120–140 g protein · protein at every meal · vegetables twice a day · avoid sugary drinks · pair poha/upma/dosa with eggs, curd or paneer.</div>
 <div class="row" style="margin-bottom:12px"><label class="f" style="flex:1;margin:0">Day of rotation<select id="pday">${M.map((_,i)=>`<option value="${i+1}" ${i+1===pday?'selected':''}>Day ${i+1}</option>`).join('')}</select></label><button class="btn gh sm" data-a="ptoday" style="align-self:flex-end">Today</button></div>
 ${sl.map(([t,tm,n],i)=>`<div class="c"><h2>${t}</h2><div class="mu">${tm}</div><div style="font-weight:700;font-size:16px;margin-top:4px">${esc(m[i])}</div>${n?`<div class="mu" style="margin-top:4px">${n}</div>`:''}</div>`).join('')}
 <div class="c"><h2>🆘 Emergency kit (office / Zepto / Blinkit)</h2><ul style="margin:0;padding-left:1.1rem"><li>Bananas, apples, guava, oranges — pre-workout or planned snack</li><li>Plain Greek yogurt / unsweetened curd — protein + easy snack</li><li>Boiled eggs — fast protein</li><li>Roasted chana — controlled-portion snack</li><li>Unsalted almonds / peanuts — 10–15 g portion</li><li><b>Glucose tablets — emergency hypo treatment only</b></li></ul></div>`}
@@ -420,7 +421,7 @@ case'addf':{const name=$('#m-name').value.trim();if(!name)return toast('Enter a 
 addEntry({meal:$('#m-meal').value,name,qty:1,unit:'serving',kcal:num($('#m-kcal').value),pro:num($('#m-pro').value),carb:num($('#m-carb').value),fat:num($('#m-fat').value)},dd);render();toast('Added','ok',1800);break}
 case'delf':del(k);render();toast('Entry removed','',1800);break;
 case'fexp':{const r=keys(`f:${dd}:`).map(x=>get(x));if(!r.length)return toast('No entries to export','wn');dl(`food-diary-${dd}.csv`,csv([['Date','Meal','Item','Qty','Unit','kcal','Protein','Carbs','Fat'],...r.map(x=>[dd,x.meal,x.name,x.qty,x.unit,x.kcal,x.pro,x.carb,x.fat])]),'text/csv');break}
-case'ptoday':pday=cl(new Date().getDate(),1,30);render();break;
+case'ptoday':pday=cl(new Date().getDate(),1,M.length);render();break;
 case'cstart':startCam();break;case'cstop':stopCam();if(pend)render();break;
 case'look':look($('#bc').value);break;
 case'dscan':cam.res=null;$('#sres').innerHTML='';break;
@@ -450,6 +451,7 @@ if(t.dataset.f==='d'){const row=t.closest('.sr');setSet(row,'d',t.checked?1:0);r
 else if(t.id==='cardio'){const k=`w:${iso()}:${rt}`,w=get(k)||{s:{},c:0};w.s=w.s||{};w.c=t.checked?1:0;put(k,w)}
 else if(t.dataset.ck){const k='ck:'+iso();put(k,{...(get(k)||{}),[t.dataset.ck]:t.checked?1:0})}
 
+else if(t.id==='pday'){pday=+t.value;render()}
 else if(t.id==='ph'){const f=t.files&&t.files[0];t.value='';if(!f)return;if(!('BarcodeDetector'in window))return toast("This browser can't read barcodes from photos — type the digits",'wn',5000);
 createImageBitmap(f).then(im=>new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']}).detect(im)).then(c=>{if(!c.length)return toast('No barcode found — retake closer and level','wn');$('#bc').value=c[0].rawValue;look(c[0].rawValue)}).catch(()=>toast('Could not read that photo','bad'))}});
 $('#view').addEventListener('keydown',e=>{if(e.key==='Enter'){if(e.target.id==='qg'){e.preventDefault();saveQG()}else if(e.target.id==='bc'){e.preventDefault();look(e.target.value)}}});
@@ -463,7 +465,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')RT.stop()});
 /* ---------- init ---------- */
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',theme);
 theme();render();Sync.init();
-setInterval(()=>{const t=iso();if(t!==curDay){if(dd===curDay)dd=t;curDay=t;pday=cl(new Date().getDate(),1,30);rs();toast('New day — refreshed','',2000)}},60000);
+setInterval(()=>{const t=iso();if(t!==curDay){if(dd===curDay)dd=t;curDay=t;pday=cl(new Date().getDate(),1,M.length);rs();toast('New day — refreshed','',2000)}},60000);
 </script>
 </body>
 </html>
