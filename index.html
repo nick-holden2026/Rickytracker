@@ -12,6 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <title>Clay's Health Hub</title>
+<link rel="manifest" href="./manifest.json">
 <style>
 /* ============================================================
    1. DESIGN TOKENS
@@ -2543,6 +2544,12 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
